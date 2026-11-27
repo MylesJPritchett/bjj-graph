@@ -1,0 +1,349 @@
+{
+  "version": "0.1.0",
+  "families": [
+    { "id": "standing", "name": "Standing", "definition": "Both Athletes on their feet, whether apart, hand-fighting or tied up." },
+    { "id": "guard", "name": "Guard", "definition": "One Athlete uses both legs between themselves and the other Athlete, who is not past them." },
+    { "id": "half_guard", "name": "Half guard", "definition": "The bottom Athlete traps one of the top Athlete's legs between their own legs." },
+    { "id": "side_control", "name": "Side control", "definition": "The top Athlete is past the legs and pins the bottom Athlete's back or side to the mat without mounting." },
+    { "id": "mount", "name": "Mount", "definition": "The top Athlete sits astride the bottom Athlete's torso, knees on the mat, with neither leg trapped." },
+    { "id": "back", "name": "Back", "definition": "One Athlete is behind the other with chest-to-back control." },
+    { "id": "turtle", "name": "Turtle", "definition": "One Athlete is on knees and elbows, belly to the mat, with the other attacking from on top." },
+    { "id": "leg_entanglement", "name": "Leg entanglement", "definition": "One or both Athletes control a leg with their legs for leg attacks, with no submission yet being applied." },
+    { "id": "scramble", "name": "Scramble", "definition": "Unclear, in-between moments where no named Position holds." },
+    { "id": "submission", "name": "Submission", "definition": "One Athlete has a submission hold locked on and is working to finish it." }
+  ],
+  "positions": [
+    {
+      "id": "standing",
+      "name": "Standing",
+      "family": "standing",
+      "symmetric": true,
+      "hotkey": "u",
+      "definition": "Both Athletes on their feet, apart, hand-fighting or in a clinch tie (collar tie, underhooks, two-on-one) with no leg held."
+    },
+    {
+      "id": "leg_attack",
+      "name": "Standing leg attack",
+      "family": "standing",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "i",
+      "definition": "Both still standing (or the attacker on a knee) while the attacker holds one or both of the defender's legs in a single or double leg."
+    },
+    {
+      "id": "closed_guard",
+      "name": "Closed guard",
+      "family": "guard",
+      "symmetric": false,
+      "roles": ["guard", "passer"],
+      "hotkey": "c",
+      "definition": "The guard player's legs are wrapped around the passer's torso with the ankles crossed."
+    },
+    {
+      "id": "open_guard",
+      "name": "Open guard",
+      "family": "guard",
+      "symmetric": false,
+      "roles": ["guard", "passer"],
+      "hotkey": "o",
+      "definition": "The guard player is seated or supine with both legs engaged (butterfly, X, De La Riva, shin-to-shin and similar) and the passer standing or kneeling in front, ankles not crossed."
+    },
+    {
+      "id": "double_guard",
+      "name": "Double guard",
+      "family": "guard",
+      "symmetric": true,
+      "hotkey": "d",
+      "definition": "Both Athletes are seated or supine with legs engaged and neither on top, typically after both pull guard."
+    },
+    {
+      "id": "half_guard",
+      "name": "Half guard",
+      "family": "half_guard",
+      "symmetric": false,
+      "roles": ["guard", "passer"],
+      "hotkey": "h",
+      "definition": "The guard player traps one of the passer's legs between their legs, including knee-shield and lockdown variations, with the passer on top."
+    },
+    {
+      "id": "deep_half_guard",
+      "name": "Deep half guard",
+      "family": "half_guard",
+      "symmetric": false,
+      "roles": ["guard", "passer"],
+      "hotkey": "H",
+      "definition": "The guard player is underneath the passer's hips, trapping the near leg and hugging it to their chest."
+    },
+    {
+      "id": "side_control",
+      "name": "Side control",
+      "family": "side_control",
+      "symmetric": false,
+      "roles": ["pinner", "pinned"],
+      "hotkey": "s",
+      "definition": "The pinner is past the legs, chest across the pinned Athlete's chest from the side, hips on the mat or close to it."
+    },
+    {
+      "id": "north_south",
+      "name": "North-south",
+      "family": "side_control",
+      "symmetric": false,
+      "roles": ["pinner", "pinned"],
+      "hotkey": "n",
+      "definition": "The pinner lies chest to chest above the pinned Athlete's head, facing the opposite direction."
+    },
+    {
+      "id": "knee_on_belly",
+      "name": "Knee on belly",
+      "family": "side_control",
+      "symmetric": false,
+      "roles": ["pinner", "pinned"],
+      "hotkey": "e",
+      "definition": "The pinner is past the legs with a knee or shin across the pinned Athlete's belly or chest and the other foot posted."
+    },
+    {
+      "id": "mount",
+      "name": "Mount",
+      "family": "mount",
+      "symmetric": false,
+      "roles": ["mounter", "mounted"],
+      "hotkey": "m",
+      "definition": "The mounter sits astride the mounted Athlete's torso, both knees (or a knee and a foot, as in S-mount) on the mat and no leg trapped."
+    },
+    {
+      "id": "back_control",
+      "name": "Back control",
+      "family": "back",
+      "symmetric": false,
+      "roles": ["back taker", "defender"],
+      "hotkey": "b",
+      "definition": "On the ground, the back taker is chest to the defender's back with both hooks in, a body triangle, or a seatbelt plus one hook."
+    },
+    {
+      "id": "standing_back",
+      "name": "Standing back",
+      "family": "back",
+      "symmetric": false,
+      "roles": ["back taker", "defender"],
+      "hotkey": "B",
+      "definition": "The defender is on their feet (or one knee) with the back taker behind them holding a body lock, seatbelt or hooks."
+    },
+    {
+      "id": "turtle",
+      "name": "Turtle",
+      "family": "turtle",
+      "symmetric": false,
+      "roles": ["rider", "turtle"],
+      "hotkey": "t",
+      "definition": "The turtled Athlete is on knees and elbows, belly down; the rider is on top or at their side without back control."
+    },
+    {
+      "id": "single_leg_x",
+      "name": "Single-leg X / ashi garami",
+      "family": "leg_entanglement",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "x",
+      "definition": "The attacker traps one of the defender's legs between theirs, one foot on the defender's same-side hip and the other leg behind the trapped thigh, neither leg crossing over it."
+    },
+    {
+      "id": "outside_ashi",
+      "name": "Outside ashi",
+      "family": "leg_entanglement",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "a",
+      "definition": "As ashi garami, but the attacker's top leg crosses over the trapped thigh to the outside of it, foot on or past the defender's same-side hip."
+    },
+    {
+      "id": "inside_sankaku",
+      "name": "Inside sankaku / saddle",
+      "family": "leg_entanglement",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "q",
+      "definition": "The attacker's legs triangle around one of the defender's legs, the top leg crossing between the defender's legs towards their cross-side hip."
+    },
+    {
+      "id": "fifty_fifty",
+      "name": "50/50",
+      "family": "leg_entanglement",
+      "symmetric": true,
+      "hotkey": "f",
+      "definition": "Facing each other, each Athlete entangles the other's same-side leg in mirror image, so both have the same attacks."
+    },
+    {
+      "id": "backside_fifty_fifty",
+      "name": "Backside 50/50",
+      "family": "leg_entanglement",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "F",
+      "definition": "A 50/50 in which the defender has turned away (belly down or hips rotated), exposing their heel while the attacker still faces them."
+    },
+    {
+      "id": "scramble",
+      "name": "Scramble",
+      "family": "scramble",
+      "symmetric": true,
+      "hotkey": "r",
+      "definition": "No named Position holds: both Athletes are moving between Positions, or the picture is unclear (see the Label Guide)."
+    },
+    {
+      "id": "rear_naked_choke",
+      "name": "Rear naked choke",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "R",
+      "definition": "From behind, the attacker's arm is around the defender's neck under the chin with the choking grip (figure-four or palm-to-palm) locked."
+    },
+    {
+      "id": "guillotine",
+      "name": "Guillotine",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "G",
+      "definition": "From the front, the attacker encircles the defender's neck (with or without an arm in) and has the grip locked and is squeezing."
+    },
+    {
+      "id": "triangle",
+      "name": "Triangle choke",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "T",
+      "definition": "The attacker's legs are locked in a figure-four around the defender's neck and one arm."
+    },
+    {
+      "id": "arm_triangle",
+      "name": "Arm triangle / d'arce",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "D",
+      "definition": "The attacker's arms lock around the defender's neck and one of the defender's arms (head-and-arm, d'arce, anaconda)."
+    },
+    {
+      "id": "armbar",
+      "name": "Armbar",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "A",
+      "definition": "The attacker isolates one of the defender's arms across their hips with the legs controlling the defender's torso and works to straighten the elbow."
+    },
+    {
+      "id": "heel_hook",
+      "name": "Heel hook",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "X",
+      "definition": "From a leg entanglement, the attacker has the defender's heel isolated in an arm grip and is turning it."
+    },
+    {
+      "id": "other_submission",
+      "name": "Other submission",
+      "family": "submission",
+      "symmetric": false,
+      "roles": ["attacker", "defender"],
+      "hotkey": "O",
+      "definition": "Any other locked-on submission hold being worked: kimura, straight ankle lock, kneebar, toe hold, calf slicer, north-south choke and so on."
+    }
+  ],
+  "transitions": [
+    {
+      "id": "takedown",
+      "name": "Takedown",
+      "takes_initiator": true,
+      "hotkey": "t",
+      "definition": "The Initiator brings the other Athlete from standing to the ground and lands in a controlling or neutral Position (not a guard pull)."
+    },
+    {
+      "id": "guard_pull",
+      "name": "Guard pull",
+      "takes_initiator": true,
+      "hotkey": "g",
+      "definition": "The Initiator sits or jumps from standing into a guard or a leg entanglement of their own choosing."
+    },
+    {
+      "id": "sweep",
+      "name": "Sweep",
+      "takes_initiator": true,
+      "hotkey": "s",
+      "definition": "The Initiator, playing guard or half guard, reverses the other Athlete and ends on top or standing over them."
+    },
+    {
+      "id": "pass",
+      "name": "Pass",
+      "takes_initiator": true,
+      "hotkey": "p",
+      "definition": "The Initiator gets past the other Athlete's legs from guard or half guard into side control, mount, knee on belly or north-south."
+    },
+    {
+      "id": "advance",
+      "name": "Advance",
+      "takes_initiator": true,
+      "hotkey": "a",
+      "definition": "The Initiator improves their Position without a pass, sweep or back take, e.g. open guard to half guard, side control to mount."
+    },
+    {
+      "id": "back_take",
+      "name": "Back take",
+      "takes_initiator": true,
+      "hotkey": "b",
+      "definition": "The Initiator gets behind the other Athlete into back control or standing back."
+    },
+    {
+      "id": "escape",
+      "name": "Escape",
+      "takes_initiator": true,
+      "hotkey": "e",
+      "definition": "The Initiator, held in an inferior Role (pinned, mounted, turtled, back defender), recovers guard, stands up or reaches a neutral Position."
+    },
+    {
+      "id": "leg_entry",
+      "name": "Leg entry",
+      "takes_initiator": true,
+      "hotkey": "l",
+      "definition": "The Initiator enters a leg entanglement from a guard, standing or another entanglement (other than by a guard pull)."
+    },
+    {
+      "id": "submission_entry",
+      "name": "Submission entry",
+      "takes_initiator": true,
+      "hotkey": "u",
+      "definition": "The Initiator locks on a submission hold, moving into a Submission Position as its attacker."
+    },
+    {
+      "id": "submission_escape",
+      "name": "Submission escape",
+      "takes_initiator": true,
+      "hotkey": "x",
+      "definition": "The Initiator, defending a Submission Position, frees themselves and the hold is no longer locked on."
+    },
+    {
+      "id": "disengage",
+      "name": "Disengage",
+      "takes_initiator": true,
+      "hotkey": "d",
+      "definition": "The Initiator voluntarily breaks contact or stands up out of a Position they were not losing, e.g. a passer stepping back to standing."
+    },
+    {
+      "id": "reset",
+      "name": "Reset",
+      "takes_initiator": false,
+      "hotkey": "r",
+      "definition": "The referee imposes a new Position: a stand-up, an out-of-bounds restart, or a restart after a stoppage."
+    },
+    {
+      "id": "other",
+      "name": "Other",
+      "takes_initiator": true,
+      "hotkey": "o",
+      "definition": "Any earned change of Position not covered above, including entries into and exits out of Scramble with no clearer type."
+    }
+  ]
+}

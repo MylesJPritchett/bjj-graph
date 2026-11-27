@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/MylesJPritchett/bjj-graph/main/vocab/vocabulary.schema.json",
+  "title": "Vocabulary",
+  "description": "The Families, Positions and Transition types used to label Annotations. Ruleset-agnostic: nothing here carries scoring meaning (ADR-0001).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "families", "positions", "transitions"],
+  "properties": {
+    "version": {
+      "description": "Semantic version. Annotations record the version they were labelled with. Bump the major version when an id is removed or its meaning changes, the minor version when ids are added.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "families": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "definition"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1 },
+          "definition": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "positions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/position" }
+    },
+    "transitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/transition" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "hotkey": {
+      "description": "A single key. An uppercase letter means Shift plus that letter.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]$"
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "family", "symmetric", "hotkey", "definition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "family": { "description": "A Family id.", "$ref": "#/$defs/id" },
+        "symmetric": { "type": "boolean" },
+        "roles": {
+          "description": "The two Role names, first Role first. The first Role is the one whose holder a Segment records as `first_role_holder`, and the perspective of the Position's Positional Eval.",
+          "type": "array",
+          "prefixItems": [
+            { "type": "string", "minLength": 1 },
+            { "type": "string", "minLength": 1 }
+          ],
+          "items": false,
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "hotkey": { "$ref": "#/$defs/hotkey" },
+        "definition": { "type": "string", "minLength": 1 }
+      },
+      "if": { "properties": { "symmetric": { "const": true } } },
+      "then": { "not": { "required": ["roles"] } },
+      "else": { "required": ["roles"] }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "takes_initiator", "hotkey", "definition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "takes_initiator": {
+          "description": "Whether a Transition of this type is credited to an Initiator. False only for Reset.",
+          "type": "boolean"
+        },
+        "hotkey": {
+          "description": "Suggested key in the Transition type prompt (a separate keymap from the Position hotkeys).",
+          "$ref": "#/$defs/hotkey"
+        },
+        "definition": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

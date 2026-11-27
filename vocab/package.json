@@ -1,0 +1,15 @@
+{
+  "name": "bjj-graph-vocab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Checks for the shared vocabulary, Annotation JSON Schema and Athlete registry",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

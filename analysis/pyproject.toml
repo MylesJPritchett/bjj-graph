@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bjj-analysis"
+version = "0.1.0"
+description = "Corpus analysis for BJJ Graph: load Annotations and turn them into position statistics."
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema==4.26.0",
+    "matplotlib==3.11.2",
+    "networkx==3.7",
+    "numpy==2.5.5",
+    "pandas==3.1.1",
+    "scipy==1.18.1",
+]
+
+[project.scripts]
+bjj-agreement = "bjj_analysis.agreement:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.2.0",
+    "nbformat==5.11.1",
+    "nbclient==0.11.0",
+    "ipykernel==7.4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]

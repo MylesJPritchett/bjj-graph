@@ -1,0 +1,3 @@
+# Positions and Transitions are ruleset-agnostic; scoring lives on a separate track
+
+Annotations record Positions and Transitions with no scoring meaning attached. Points, advantages, penalties and submission finishes are recorded only as Score Events on their own timestamped track, labelled using the Match's ruleset. Rulesets score the same Transition differently (or not at all), so keeping the two apart lets one Corpus be analysed across rulesets, and lets the positional graph be re-scored without re-labelling. The cost is a second track to label, plus the occasional redundancy of a pass and its "3 points" being recorded separately.
