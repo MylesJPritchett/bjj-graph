@@ -1,5 +1,5 @@
 // "Add Athlete": a small form that saves a new Athlete to the registry through
-// the dev server, for Athletes not yet listed (e.g. trials competitors).
+// the dev server, for Athletes not yet listed (e.g. Athletes from a trials event).
 
 import { addAthlete, suggestSlug, type NewAthlete } from "../../session/registry";
 import type { AthleteSlug } from "../../session/types";

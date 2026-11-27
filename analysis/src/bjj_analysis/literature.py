@@ -32,7 +32,7 @@ def lamas_2024_comparison(corpus: Corpus) -> pd.DataFrame:
       Position that enter a submission-Family Position.
     - `submissions_per_athlete_per_match`: Lamas et al. report a point
       estimate of 1.03 submission attempts per match, the only main action
-      above one per competitor per match. Here: submission-Family Segments
+      above one per Athlete per match. Here: submission-Family Segments
       divided by 2 Athletes × Matches. A chain (triangle into armbar) counts
       each Segment.
 
