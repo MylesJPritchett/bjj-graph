@@ -46,13 +46,13 @@ export function withRegistry(session: Session, registry: AthleteRegistry): Sessi
   return { ...session, context: { ...session.context, registry } };
 }
 
-export interface Outcome {
+export interface ApplyResult {
   session: Session;
   /** Set when the command was refused; `session` is then the unchanged input. */
   rejection?: string;
 }
 
-export function apply(session: Session, command: Command): Outcome {
+export function apply(session: Session, command: Command): ApplyResult {
   const handler = handlers[command.type] as (s: Session, c: Command) => Session;
   try {
     const handled = handler(session, command);
