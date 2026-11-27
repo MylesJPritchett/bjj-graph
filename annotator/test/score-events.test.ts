@@ -45,9 +45,13 @@ describe("editing and deleting Score Events", () => {
       { type: "add_score_event", time: 200, athlete: "sam-example", score_type: "advantage" },
     ]);
 
-  it("an edit replaces the Event's fields and re-sorts the track", () => {
+  it("an edit changes the given fields, clears those set to null, and re-sorts the track", () => {
     const session = run(scored(), [
-      { type: "edit_score_event", index: 0, event: { time: 260, athlete: "sam-example", score_type: "penalty" } },
+      {
+        type: "edit_score_event",
+        event: 0,
+        set: { time: 260, athlete: "sam-example", score_type: "penalty", value: null },
+      },
     ]);
 
     expect(session.annotation.events).toEqual([
@@ -56,8 +60,28 @@ describe("editing and deleting Score Events", () => {
     ]);
   });
 
+  it("an edit keeps the fields it leaves out", () => {
+    const session = run(scored(), [{ type: "edit_score_event", event: 0, set: { value: 3, note: "late call" } }]);
+
+    expect(session.annotation.events[0]).toEqual({
+      kind: "score",
+      time: 150,
+      athlete: "alex-example",
+      score_type: "points",
+      value: 3,
+      note: "late call",
+    });
+  });
+
+  it("undo restores a deleted Event", () => {
+    const before = scored();
+    const session = run(before, [{ type: "delete_score_event", event: 0 }, { type: "undo" }]);
+
+    expect(session.annotation).toEqual(before.annotation);
+  });
+
   it("deletes an Event", () => {
-    const session = run(scored(), [{ type: "remove_score_event", index: 1 }]);
+    const session = run(scored(), [{ type: "delete_score_event", event: 1 }]);
 
     expect(session.annotation.events).toEqual([
       { kind: "score", time: 150, athlete: "alex-example", score_type: "points", value: 2 },
@@ -65,12 +89,12 @@ describe("editing and deleting Score Events", () => {
   });
 
   it("rejects editing or deleting an Event that doesn't exist", () => {
-    expect(apply(scored(), { type: "remove_score_event", index: 5 }).rejection).toBeDefined();
+    expect(apply(scored(), { type: "delete_score_event", event: 5 }).rejection).toBeDefined();
     expect(
       apply(scored(), {
         type: "edit_score_event",
-        index: 2,
-        event: { time: 160, athlete: "alex-example", score_type: "advantage" },
+        event: 2,
+        set: { time: 160, athlete: "alex-example", score_type: "advantage" },
       }).rejection,
     ).toBeDefined();
   });

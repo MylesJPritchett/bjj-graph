@@ -64,14 +64,14 @@ describe("a submission Method needs a final submission-finish Score Event during
   });
 
   it("flags a submission with no submission-finish Score Event", () => {
-    const session = run(finished(), [{ type: "remove_score_event", index: 3 }]);
+    const session = run(finished(), [{ type: "delete_score_event", event: 3 }]);
 
     expect(finishViolations(session)).toEqual([expect.objectContaining({ target: { kind: "result" } })]);
   });
 
   it("flags a submission finish that isn't the final Score Event", () => {
     const session = run(finished(), [
-      { type: "edit_score_event", index: 3, event: { time: 295, athlete: "alex-example", score_type: "submission_finish" } },
+      { type: "edit_score_event", event: 3, set: { time: 295, athlete: "alex-example", score_type: "submission_finish" } },
       { type: "add_score_event", time: 298, athlete: "sam-example", score_type: "penalty" },
     ]);
 
@@ -80,7 +80,7 @@ describe("a submission Method needs a final submission-finish Score Event during
 
   it("flags a finish credited to the losing Athlete", () => {
     const session = run(finished(), [
-      { type: "edit_score_event", index: 3, event: { time: 302, athlete: "sam-example", score_type: "submission_finish" } },
+      { type: "edit_score_event", event: 3, set: { time: 302, athlete: "sam-example", score_type: "submission_finish" } },
     ]);
 
     expect(finishViolations(session)).toHaveLength(1);
@@ -88,7 +88,7 @@ describe("a submission Method needs a final submission-finish Score Event during
 
   it("flags a finish outside a Submission Position", () => {
     const session = run(finished(), [
-      { type: "edit_score_event", index: 3, event: { time: 280, athlete: "alex-example", score_type: "submission_finish" } },
+      { type: "edit_score_event", event: 3, set: { time: 280, athlete: "alex-example", score_type: "submission_finish" } },
     ]);
 
     expect(finishViolations(session)).toHaveLength(1);
@@ -103,7 +103,7 @@ describe("a submission Method needs a final submission-finish Score Event during
 
   it("doesn't apply to other Methods", () => {
     const session = run(finished(), [
-      { type: "remove_score_event", index: 3 },
+      { type: "delete_score_event", event: 3 },
       { type: "set_result", result: { winner: "alex-example", method: "points" } },
     ]);
 

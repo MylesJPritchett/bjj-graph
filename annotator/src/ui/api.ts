@@ -1,5 +1,6 @@
 // Client for the dev-server data API (server/plugin.ts).
 
+import type { NewAthlete } from "../session/registry";
 import type { Annotation, AthleteRegistry, Vocabulary } from "../session/types";
 
 export class ApiError extends Error {
@@ -21,6 +22,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   vocabulary: () => request<Vocabulary>("/api/vocabulary"),
   registry: () => request<AthleteRegistry>("/api/athletes"),
+  /** Saves a new Athlete to the registry file; resolves to the whole updated registry. */
+  addAthlete: (athlete: NewAthlete) =>
+    request<AthleteRegistry>("/api/athletes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(athlete),
+    }),
   listAnnotations: () => request<string[]>("/api/annotations"),
   readAnnotation: (id: string) => request<Annotation>(`/api/annotations/${encodeURIComponent(id)}`),
   saveAnnotation: (annotation: Annotation) =>

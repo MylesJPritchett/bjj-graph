@@ -1,6 +1,7 @@
 // A Vite plugin that serves the local data API during `npm run dev`:
 //   GET /api/vocabulary          vocab/vocabulary.json
 //   GET /api/athletes            the Athlete registry
+//   POST /api/athletes           add an Athlete to the registry (slugs unique, format-checked)
 //   GET /api/annotations         ids of the saved Annotations
 //   GET /api/annotations/:id     annotations/<id>.json
 //   PUT /api/annotations/:id     save annotations/<id>.json (schema-checked)
@@ -15,6 +16,8 @@ import {
   StoreError,
   writeAnnotation,
 } from "./annotation-store";
+import { athletesFile } from "./paths";
+import { addAthleteToRegistry } from "./registry-store";
 
 type Handler = (req: IncomingMessage, params: string[]) => Promise<unknown>;
 
@@ -37,6 +40,11 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 const routes: Route[] = [
   { method: "GET", pattern: /^\/api\/vocabulary$/, handler: () => readVocabulary() },
   { method: "GET", pattern: /^\/api\/athletes$/, handler: () => readRegistry() },
+  {
+    method: "POST",
+    pattern: /^\/api\/athletes$/,
+    handler: async (req) => addAthleteToRegistry(athletesFile, await readBody(req)),
+  },
   { method: "GET", pattern: /^\/api\/annotations$/, handler: () => listAnnotations() },
   {
     method: "GET",

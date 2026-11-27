@@ -1,16 +1,11 @@
 // Score Events: the scoring track, kept apart from Segments (ADR-0001).
 
 import { reject, withAnnotation, type Session } from "../state";
-import type { AthleteSlug, MatchEvent, ScoreEvent, VideoTime } from "../types";
+import type { MatchEvent, ScoreEvent } from "../types";
 
 /** A Score Event's fields, without its `kind`. */
-export interface ScoreEventFields {
-  time: VideoTime;
-  athlete: AthleteSlug;
-  score_type: ScoreEvent["score_type"];
-  value?: number;
-  note?: string;
-}
+export type ScoreEventFields = Omit<ScoreEvent, "kind">;
+type OptionalField = { [K in keyof ScoreEventFields]-?: undefined extends ScoreEventFields[K] ? K : never }[keyof ScoreEventFields];
 
 export interface AddScoreEvent extends ScoreEventFields {
   type: "add_score_event";
@@ -19,17 +14,17 @@ export interface AddScoreEvent extends ScoreEventFields {
 export interface EditScoreEvent {
   type: "edit_score_event";
   /** Index into `annotation.events`. */
-  index: number;
-  /** The Score Event's new fields; replaces the old ones entirely. */
-  event: ScoreEventFields;
+  event: number;
+  /** Fields to change. `null` clears an optional field; fields left out are kept. */
+  set: { [K in keyof ScoreEventFields]?: K extends OptionalField ? ScoreEventFields[K] | null : ScoreEventFields[K] };
 }
 
-export interface RemoveScoreEvent {
-  type: "remove_score_event";
-  index: number;
+export interface DeleteScoreEvent {
+  type: "delete_score_event";
+  event: number;
 }
 
-export type EventCommand = AddScoreEvent | EditScoreEvent | RemoveScoreEvent;
+export type EventCommand = AddScoreEvent | EditScoreEvent | DeleteScoreEvent;
 
 function scoreEvent(session: Session, fields: ScoreEventFields): ScoreEvent {
   const { time, athlete, score_type, value, note } = fields;
@@ -49,7 +44,7 @@ function inTimeOrder(events: MatchEvent[]): MatchEvent[] {
 
 function existing(session: Session, index: number): MatchEvent {
   const event = session.annotation.events[index];
-  if (!event) reject(`There's no Event ${index + 1}.`);
+  if (!event) reject(`There is no Event ${index + 1}.`);
   return event;
 }
 
@@ -60,13 +55,19 @@ export function addScoreEvent(session: Session, command: AddScoreEvent): Session
 }
 
 export function editScoreEvent(session: Session, command: EditScoreEvent): Session {
-  existing(session, command.index);
+  const { kind: _kind, ...current } = existing(session, command.event);
+  const edited: Record<string, unknown> = { ...current };
+  for (const [field, value] of Object.entries(command.set)) {
+    if (value === undefined) continue;
+    if (value === null) delete edited[field];
+    else edited[field] = value;
+  }
   const events = [...session.annotation.events];
-  events[command.index] = scoreEvent(session, command.event);
+  events[command.event] = scoreEvent(session, edited as unknown as ScoreEventFields);
   return withAnnotation(session, { events: inTimeOrder(events) });
 }
 
-export function removeScoreEvent(session: Session, command: RemoveScoreEvent): Session {
-  existing(session, command.index);
-  return withAnnotation(session, { events: session.annotation.events.filter((_, i) => i !== command.index) });
+export function deleteScoreEvent(session: Session, command: DeleteScoreEvent): Session {
+  existing(session, command.event);
+  return withAnnotation(session, { events: session.annotation.events.filter((_, i) => i !== command.event) });
 }

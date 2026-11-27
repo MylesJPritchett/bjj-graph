@@ -78,17 +78,21 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
   }
 
   function save() {
-    const fields: ScoreEventFields = {
+    const required = {
       time: Number(time.value),
       athlete: athlete.value,
       score_type: scoreType.value as ScoreEvent["score_type"],
-      value: value.value.trim() === "" ? undefined : Number(value.value),
-      note: note.value,
     };
+    const typedValue = value.value.trim() === "" ? undefined : Number(value.value);
+    const typedNote = note.value.trim() || undefined;
     const ok =
       editing === undefined
-        ? store.dispatch({ type: "add_score_event", ...fields })
-        : store.dispatch({ type: "edit_score_event", index: editing, event: fields });
+        ? store.dispatch({ type: "add_score_event", ...required, value: typedValue, note: typedNote })
+        : store.dispatch({
+            type: "edit_score_event",
+            event: editing,
+            set: { ...required, value: typedValue ?? null, note: typedNote ?? null },
+          });
     if (ok) dialog.close();
   }
 
@@ -108,7 +112,7 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
   });
   cancel.addEventListener("click", () => dialog.close());
   remove.addEventListener("click", () => {
-    if (editing !== undefined && store.dispatch({ type: "remove_score_event", index: editing })) dialog.close();
+    if (editing !== undefined && store.dispatch({ type: "delete_score_event", event: editing })) dialog.close();
   });
 
   return {

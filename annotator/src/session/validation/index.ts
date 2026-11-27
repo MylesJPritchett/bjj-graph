@@ -3,6 +3,7 @@
 
 import type { SessionContext } from "../state";
 import type { Annotation } from "../types";
+import { minimumDuration } from "./duration";
 import { knownAthletes, knownPosition, twoAthletes } from "./known-ids";
 import { resultPresent, scoreEventInMatch, submissionFinish } from "./scoring";
 import { matchBoundsSet, segmentsTileMatch } from "./timeline";
@@ -18,6 +19,7 @@ export const rules: Rule[] = [
   // Segments
   segmentsTileMatch,
   knownPosition,
+  minimumDuration,
   // Score Events and Result
   scoreEventInMatch,
   resultPresent,
