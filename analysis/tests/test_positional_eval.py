@@ -1,4 +1,5 @@
 import pytest
+from scipy.stats import beta
 from corpus_builder import A, B, AnnotationBuilder, write_corpus
 
 from bjj_analysis import (
@@ -126,7 +127,9 @@ def test_a_brief_losing_mount_and_a_long_winning_mount_lean_win_for_the_mounter(
     assert row["weight"] == pytest.approx(1 + 5 / 30)
     assert row["perspective"] == "first_role"
     assert row["role"] == "mounter"
-    assert row["p_win"] > 0.5 > row["p_loss"]
+    # Mount is alone in its Family, so the prior is uniform: Dirichlet(2, 7/6, 1).
+    assert row["p_win"] == pytest.approx(12 / 25)
+    assert row["p_win"] > row["p_loss"]
     assert row["p_win"] + row["p_loss"] + row["p_draw"] == pytest.approx(1)
 
 
@@ -238,3 +241,36 @@ def test_the_sensitivity_table_reruns_the_eval_at_each_cap(tmp_path):
     assert list(guard.index) == [15, 30, 60]
     assert guard["weight"].to_list() == pytest.approx([2, 1 + 20 / 30, 1 + 20 / 60])
     assert guard.loc[15, "p_win"] < guard.loc[30, "p_win"] < guard.loc[60, "p_win"]
+
+
+def test_a_position_alone_in_its_family_gets_only_the_uniform_prior(tmp_path):
+    # Mount is the only Position in its Family, so there is no other data to
+    # pool towards: its own two wins must not be counted again as a prior.
+    write_corpus(tmp_path, held("m1", "mount", A), held("m2", "mount", A))
+
+    row = eval_row(positional_eval(load_corpus(tmp_path)), "mount")
+
+    # Dirichlet((2, 0, 0) + (α + γ) / 3) with α = 2, γ = 1: (3, 1, 1).
+    assert row["family_weight"] == 0
+    assert row["family_p_win"] == pytest.approx(1 / 3)
+    assert row["p_win"] == pytest.approx(3 / 5)
+    assert row["p_win_low"] == pytest.approx(beta.ppf(0.05, 3, 2))
+    assert row["p_win_high"] == pytest.approx(beta.ppf(0.95, 3, 2))
+    assert row["p_draw"] == pytest.approx(1 / 5)
+
+
+def test_the_family_prior_leaves_out_the_position_itself(tmp_path):
+    # Side control loses its one Match; north-south (same Family) wins two.
+    write_corpus(
+        tmp_path,
+        held("sc", "side_control", B),
+        held("ns1", "north_south", A),
+        held("ns2", "north_south", A),
+    )
+
+    row = eval_row(positional_eval(load_corpus(tmp_path)), "side_control")
+
+    # The Family prior is north-south's data alone: ((2, 0, 0) + 1/3) / 3.
+    assert row["family_weight"] == 2
+    assert row["family_p_win"] == pytest.approx(7 / 9)
+    assert row["family_p_loss"] == pytest.approx(1 / 9)

@@ -93,13 +93,15 @@ def short_horizon_outcomes(
     Position, shared equally among its entries, so a Match with many
     re-entries can't fake confidence. With k = the summed weight of entries
     with an outcome and n = the summed weight of all entries (`weight`, one
-    per Match), and k_F, n_F the same over the Position's Family:
+    per Match), and k_F, n_F the same over the other Positions in its Family
+    (leave-one-out: the Position's own entries are not in k_F, n_F):
 
-        f       = (k_F + β / 2) / (n_F + β)              the Family's share
+        f       = (k_F + β / 2) / (n_F + β)              the rest of the Family's share
         p | data ~ Beta(k + α f, n - k + α (1 - f))
 
-    where α is `prior_strength` and β is `family_prior_strength`.
-    `p_outcome` is the posterior mean, `p_outcome_low` / `p_outcome_high`
+    where α is `prior_strength` and β is `family_prior_strength`. A Position
+    with no other data in its Family (n_F = 0) gets f = 1/2, the plain
+    uniform prior. `p_outcome` is the posterior mean, `p_outcome_low` / `p_outcome_high`
     bound its equal-tailed `credible_mass` (default 90%) credible interval
     and `family_p_outcome` is f.
     """
@@ -124,7 +126,9 @@ def short_horizon_outcomes(
     rows = []
     for position_id, row in by_position.iterrows():
         family = vocabulary.family_of(position_id)
-        n_family, k_family = by_family.loc[family, "weight"], by_family.loc[family, "outcome_weight"]
+        # Leave the Position's own entries out of its Family prior, so they aren't counted twice.
+        n_family = by_family.loc[family, "weight"] - row["weight"]
+        k_family = by_family.loc[family, "outcome_weight"] - row["outcome_weight"]
         family_share = (k_family + family_prior_strength / 2) / (n_family + family_prior_strength)
         a = row["outcome_weight"] + prior_strength * family_share
         b = row["weight"] - row["outcome_weight"] + prior_strength * (1 - family_share)

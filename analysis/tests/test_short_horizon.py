@@ -1,4 +1,5 @@
 import pytest
+from scipy.stats import beta
 from corpus_builder import A, B, AnnotationBuilder, write_corpus
 
 from bjj_analysis import load_corpus, short_horizon_outcomes
@@ -105,8 +106,8 @@ def test_each_match_weighs_one_however_often_the_position_is_entered(tmp_path):
 
     assert (row["entries"], row["entries_with_outcome"]) == (6, 5)
     assert row["weight"] == 2
-    # Mount is alone in its Family, so f = (1 + 1/2) / (2 + 1) = 1/2 and the
-    # posterior is Beta(1 + 1, 1 + 1), with mean 1/2.
+    # Mount is alone in its Family, so f falls back to 1/2 and the posterior
+    # is Beta(1 + 1, 1 + 1), with mean 1/2.
     assert row["family_p_outcome"] == pytest.approx(0.5)
     assert row["p_outcome"] == pytest.approx(0.5)
 
@@ -134,3 +135,38 @@ def test_intervals_contain_the_estimate_and_narrow_as_data_grows(tmp_path):
         for name, table in (("small", small), ("large", large))
     }
     assert width["large"] < width["small"]
+
+
+def scored_entry(match_id, position_id, *, scored):
+    match = AnnotationBuilder(match_id).segment("standing", 40).segment(position_id, 60, holder=A, via="takedown", by=A)
+    if scored:
+        match.score(50, A, "points", 4)
+    return match.result(winner=A)
+
+
+def test_a_position_alone_in_its_family_gets_only_the_uniform_prior(tmp_path):
+    # Both mount entries are followed by a score. Mount is the only Position
+    # in its Family, so its own data must not be counted again as a prior.
+    write_corpus(tmp_path, scored_entry("m1", "mount", scored=True), scored_entry("m2", "mount", scored=True))
+
+    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "mount")
+
+    # f = 1/2, so Beta(2 + 2 · 1/2, 0 + 2 · 1/2) = Beta(3, 1).
+    assert row["family_p_outcome"] == pytest.approx(0.5)
+    assert row["p_outcome"] == pytest.approx(3 / 4)
+    assert row["p_outcome_low"] == pytest.approx(beta.ppf(0.05, 3, 1))
+    assert row["p_outcome_high"] == pytest.approx(beta.ppf(0.95, 3, 1))
+
+
+def test_the_family_prior_leaves_out_the_position_itself(tmp_path):
+    write_corpus(
+        tmp_path,
+        scored_entry("sc", "side_control", scored=False),
+        scored_entry("ns1", "north_south", scored=True),
+        scored_entry("ns2", "north_south", scored=True),
+    )
+
+    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "side_control")
+
+    # North-south alone: f = (2 + 1/2) / (2 + 1).
+    assert row["family_p_outcome"] == pytest.approx(5 / 6)

@@ -107,14 +107,17 @@ def positional_eval_by_perspective(
 
     The model is a Dirichlet-multinomial pooled from Position into Family.
     With n = the weighted (win, loss, draw) counts of a Position from
-    `eval_contributions` and n_F those of its whole Family (N, N_F in all):
+    `eval_contributions` and n_F those of the other Positions in its Family
+    (leave-one-out: the Position's own data is not in n_F; N, N_F in all):
 
-        φ_F       = (n_F + β u) / (N_F + β)            the Family's mean outcome
+        φ_F       = (n_F + β u) / (N_F + β)            the rest of the Family's mean
         θ | data  ~ Dirichlet(n + α φ_F + γ u)          the Position's posterior
 
     where u = (1/3, 1/3, 1/3), α is `prior_strength`, β is
     `family_prior_strength` and γ is `base_prior_strength`. A rare Position
     is pulled towards its Family and a well-sampled one keeps its own data.
+    A Position with no other data in its Family (N_F = 0) gets φ_F = u, the
+    plain uniform prior. `family_weight` is N_F and `family_p_*` is φ_F.
     γ keeps every outcome a little prior mass, so a never-seen outcome (draws
     in most Families) still gets an interval that contains its estimate.
 
@@ -148,7 +151,11 @@ def positional_eval_by_perspective(
     for position_id in positions:
         family = vocabulary.family_of(position_id)
         n = [float(counts.loc[position_id, o]) if position_id in counts.index else 0.0 for o in OUTCOMES]
-        n_family = [float(family_counts.loc[family, o]) if family in family_counts.index else 0.0 for o in OUTCOMES]
+        # Leave the Position's own data out of its Family prior, so it isn't counted twice.
+        n_family = [
+            (float(family_counts.loc[family, o]) if family in family_counts.index else 0.0) - k
+            for o, k in zip(OUTCOMES, n)
+        ]
         family_total = sum(n_family)
         family_mean = [
             (k + family_prior_strength * uniform) / (family_total + family_prior_strength) for k in n_family
