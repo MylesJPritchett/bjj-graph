@@ -49,12 +49,12 @@ export class Store {
       this.notify({ kind: "error", text: "Open or create an Annotation first." });
       return false;
     }
-    const outcome = apply(session, command);
-    if (outcome.rejection) {
-      this.notify({ kind: "error", text: outcome.rejection });
+    const applied = apply(session, command);
+    if (applied.rejection) {
+      this.notify({ kind: "error", text: applied.rejection });
       return false;
     }
-    this.set({ session: outcome.session, violations: violationsOf(outcome.session), dirty: true, notice: undefined });
+    this.set({ session: applied.session, violations: violationsOf(applied.session), dirty: true, notice: undefined });
     return true;
   }
 

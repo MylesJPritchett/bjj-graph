@@ -83,13 +83,13 @@ export function mountSourcePanel(root: HTMLElement, store: Store) {
     if (!confirmDiscard()) return;
     try {
       const [original, ids] = await Promise.all([api.readAnnotation(existing.value), refreshList()]);
-      const outcome = startRelabel(store.state.context, original, {
+      const started = startRelabel(store.state.context, original, {
         id: suggestRelabelId(original.id, ids),
         annotator: annotator.value.trim(),
       });
-      if (!outcome.session) return store.notify({ kind: "error", text: outcome.rejection ?? "Couldn't start the re-label." });
+      if (!started.session) return store.notify({ kind: "error", text: started.rejection ?? "Couldn't start the re-label." });
       rememberAnnotator(annotator.value.trim());
-      store.open(outcome.session, true);
+      store.open(started.session, true);
       store.notify({ kind: "info", text: `Re-labelling ${original.id} blind. Seek to the Match start and label from there.` });
     } catch (error) {
       store.notify({ kind: "error", text: `Couldn't start the re-label: ${(error as Error).message}` });

@@ -65,9 +65,9 @@ export function mountSegmentPrompt(root: HTMLElement, store: Store): SegmentProm
     open(time, position_id) {
       const { session } = store.state;
       if (!session) return store.notify({ kind: "error", text: "Open or create an Annotation first." });
-      const outcome = openSegmentPrompt(session, { time, position_id });
-      if (!outcome.prompt) return store.notify({ kind: "error", text: outcome.rejection! });
-      prompt = outcome.prompt;
+      const opened = openSegmentPrompt(session, { time, position_id });
+      if (!opened.prompt) return store.notify({ kind: "error", text: opened.rejection! });
+      prompt = opened.prompt;
       if (!prompt.step) {
         store.dispatch(prompt.command);
         prompt = undefined;
