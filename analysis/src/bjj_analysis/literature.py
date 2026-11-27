@@ -19,6 +19,7 @@ import pandas as pd
 
 from .corpus import Corpus
 from .transitions import earned_transitions
+from .vocabulary import SUBMISSION_FAMILY
 
 COMPARISON_COLUMNS = ["measure", "description", "lamas_2024", "corpus_value", "corpus_basis", "caveat"]
 
@@ -40,8 +41,8 @@ def lamas_2024_comparison(corpus: Corpus) -> pd.DataFrame:
     """
     transitions = earned_transitions(corpus)
     from_back = transitions[transitions["from_family"] == "back"]
-    to_submission = int((from_back["to_family"] == "submission").sum())
-    submissions = int((corpus.segments["family"] == "submission").sum())
+    to_submission = int((from_back["to_family"] == SUBMISSION_FAMILY).sum())
+    submissions = int((corpus.segments["family"] == SUBMISSION_FAMILY).sum())
     matches = len(corpus.matches)
 
     rows = [

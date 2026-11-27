@@ -14,6 +14,9 @@ DEFAULT_VOCAB_DIR = Path(__file__).resolve().parents[3] / "vocab"
 #: an earned Transition.
 RESET = "reset"
 
+#: The Family of the Submission Positions (attacker / defender Roles).
+SUBMISSION_FAMILY = "submission"
+
 
 @dataclass(frozen=True)
 class Vocabulary:
