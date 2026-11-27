@@ -2,10 +2,10 @@ import pytest
 from scipy.stats import beta
 from corpus_builder import A, B, AnnotationBuilder, write_corpus
 
-from bjj_analysis import load_corpus, short_horizon_outcomes
+from bjj_analysis import load_corpus, payoff_rates
 
 
-def outcome_row(table, position_id):
+def payoff_row(table, position_id):
     rows = table[table["position_id"] == position_id]
     assert len(rows) == 1
     return rows.iloc[0]
@@ -28,10 +28,10 @@ def test_a_score_within_30s_of_entering_counts_and_one_after_does_not(tmp_path):
         .result(winner=B, method="advantages"),
     )
 
-    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "mount")
+    row = payoff_row(payoff_rates(load_corpus(tmp_path)), "mount")
 
     assert row["entries"] == 2
-    assert row["entries_with_outcome"] == 1
+    assert row["entries_with_payoff"] == 1
     assert row["observed_share"] == pytest.approx(0.5)
     assert row["matches"] == 2
 
@@ -47,11 +47,11 @@ def test_the_window_closes_at_the_next_reset(tmp_path):
         .result(winner=A),
     )
 
-    table = short_horizon_outcomes(load_corpus(tmp_path))
+    table = payoff_rates(load_corpus(tmp_path))
 
-    assert outcome_row(table, "mount")["entries_with_outcome"] == 0
-    standing = outcome_row(table, "standing")
-    assert (standing["entries"], standing["entries_with_outcome"]) == (2, 1)
+    assert payoff_row(table, "mount")["entries_with_payoff"] == 0
+    standing = payoff_row(table, "standing")
+    assert (standing["entries"], standing["entries_with_payoff"]) == (2, 1)
 
 
 def test_a_submission_win_counts_as_a_finish_at_the_match_end(tmp_path):
@@ -64,12 +64,12 @@ def test_a_submission_win_counts_as_a_finish_at_the_match_end(tmp_path):
         .result(winner=A, method="submission"),
     )
 
-    table = short_horizon_outcomes(load_corpus(tmp_path))
+    table = payoff_rates(load_corpus(tmp_path))
 
     # The Match ends at 35: 25s after entering back control, 10s after the choke.
-    assert outcome_row(table, "back_control")["entries_with_outcome"] == 1
-    assert outcome_row(table, "rear_naked_choke")["entries_with_outcome"] == 1
-    assert outcome_row(table, "standing")["entries_with_outcome"] == 0
+    assert payoff_row(table, "back_control")["entries_with_payoff"] == 1
+    assert payoff_row(table, "rear_naked_choke")["entries_with_payoff"] == 1
+    assert payoff_row(table, "standing")["entries_with_payoff"] == 0
 
 
 @pytest.mark.parametrize(("horizon", "expected"), [(10, 0), (30, 1)])
@@ -83,9 +83,9 @@ def test_the_horizon_is_a_parameter(tmp_path, horizon, expected):
         .result(winner=A),
     )
 
-    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path), horizon=horizon), "mount")
+    row = payoff_row(payoff_rates(load_corpus(tmp_path), horizon=horizon), "mount")
 
-    assert row["entries_with_outcome"] == expected
+    assert row["entries_with_payoff"] == expected
 
 
 def test_each_match_weighs_one_however_often_the_position_is_entered(tmp_path):
@@ -102,14 +102,14 @@ def test_each_match_weighs_one_however_often_the_position_is_entered(tmp_path):
         AnnotationBuilder("m2").segment("standing", 10).segment("mount", 60, holder=A, via="takedown", by=A).result(winner=A),
     )
 
-    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "mount")
+    row = payoff_row(payoff_rates(load_corpus(tmp_path)), "mount")
 
-    assert (row["entries"], row["entries_with_outcome"]) == (6, 5)
+    assert (row["entries"], row["entries_with_payoff"]) == (6, 5)
     assert row["weight"] == 2
     # Mount is alone in its Family, so f falls back to 1/2 and the posterior
     # is Beta(1 + 1, 1 + 1), with mean 1/2.
-    assert row["family_p_outcome"] == pytest.approx(0.5)
-    assert row["p_outcome"] == pytest.approx(0.5)
+    assert row["family_p_payoff"] == pytest.approx(0.5)
+    assert row["p_payoff"] == pytest.approx(0.5)
 
 
 def test_intervals_contain_the_estimate_and_narrow_as_data_grows(tmp_path):
@@ -124,14 +124,14 @@ def test_intervals_contain_the_estimate_and_narrow_as_data_grows(tmp_path):
             for i in range(count)
         ]
 
-    small = short_horizon_outcomes(load_corpus(write_corpus(tmp_path / "small", *[m.result(winner=A) for m in matches("s", 2)])))
-    large = short_horizon_outcomes(load_corpus(write_corpus(tmp_path / "large", *[m.result(winner=A) for m in matches("l", 20)])))
+    small = payoff_rates(load_corpus(write_corpus(tmp_path / "small", *[m.result(winner=A) for m in matches("s", 2)])))
+    large = payoff_rates(load_corpus(write_corpus(tmp_path / "large", *[m.result(winner=A) for m in matches("l", 20)])))
 
     for table in (small, large):
-        assert (table["p_outcome_low"] <= table["p_outcome"]).all()
-        assert (table["p_outcome"] <= table["p_outcome_high"]).all()
+        assert (table["p_payoff_low"] <= table["p_payoff"]).all()
+        assert (table["p_payoff"] <= table["p_payoff_high"]).all()
     width = {
-        name: outcome_row(table, "mount")["p_outcome_high"] - outcome_row(table, "mount")["p_outcome_low"]
+        name: payoff_row(table, "mount")["p_payoff_high"] - payoff_row(table, "mount")["p_payoff_low"]
         for name, table in (("small", small), ("large", large))
     }
     assert width["large"] < width["small"]
@@ -149,13 +149,13 @@ def test_a_position_alone_in_its_family_gets_only_the_uniform_prior(tmp_path):
     # in its Family, so its own data must not be counted again as a prior.
     write_corpus(tmp_path, scored_entry("m1", "mount", scored=True), scored_entry("m2", "mount", scored=True))
 
-    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "mount")
+    row = payoff_row(payoff_rates(load_corpus(tmp_path)), "mount")
 
     # f = 1/2, so Beta(2 + 2 · 1/2, 0 + 2 · 1/2) = Beta(3, 1).
-    assert row["family_p_outcome"] == pytest.approx(0.5)
-    assert row["p_outcome"] == pytest.approx(3 / 4)
-    assert row["p_outcome_low"] == pytest.approx(beta.ppf(0.05, 3, 1))
-    assert row["p_outcome_high"] == pytest.approx(beta.ppf(0.95, 3, 1))
+    assert row["family_p_payoff"] == pytest.approx(0.5)
+    assert row["p_payoff"] == pytest.approx(3 / 4)
+    assert row["p_payoff_low"] == pytest.approx(beta.ppf(0.05, 3, 1))
+    assert row["p_payoff_high"] == pytest.approx(beta.ppf(0.95, 3, 1))
 
 
 def test_the_family_prior_leaves_out_the_position_itself(tmp_path):
@@ -166,7 +166,7 @@ def test_the_family_prior_leaves_out_the_position_itself(tmp_path):
         scored_entry("ns2", "north_south", scored=True),
     )
 
-    row = outcome_row(short_horizon_outcomes(load_corpus(tmp_path)), "side_control")
+    row = payoff_row(payoff_rates(load_corpus(tmp_path)), "side_control")
 
     # North-south alone: f = (2 + 1/2) / (2 + 1).
-    assert row["family_p_outcome"] == pytest.approx(5 / 6)
+    assert row["family_p_payoff"] == pytest.approx(5 / 6)
