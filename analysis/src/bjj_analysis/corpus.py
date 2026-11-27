@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Collection
+from collections.abc import Collection, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -73,6 +73,11 @@ class Corpus:
     segments: pd.DataFrame
     rejected: pd.DataFrame
     vocabulary: Vocabulary
+
+    def segments_by_annotation(self) -> Iterator[tuple[str, list[dict[str, Any]]]]:
+        """Each Annotation's id with its Segments as rows (dicts), in Match order."""
+        for annotation_id, segments in self.segments.groupby("annotation_id", sort=False):
+            yield annotation_id, segments.sort_values("segment_index").to_dict("records")
 
 
 def load_corpus(

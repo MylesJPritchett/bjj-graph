@@ -38,8 +38,7 @@ def payoff_entries(corpus: Corpus, *, horizon: float = DEFAULT_HORIZON) -> pd.Da
     times = {doc["id"]: _payoff_times(doc) for doc in corpus.annotations}
     ends = dict(zip(corpus.matches["annotation_id"], corpus.matches["end_offset"]))
     rows = []
-    for annotation_id, segments in corpus.segments.groupby("annotation_id", sort=False):
-        ordered = segments.sort_values("segment_index").to_dict("records")
+    for annotation_id, ordered in corpus.segments_by_annotation():
         resets = [s["start"] for s in ordered if s["transition_type"] == RESET]
         for segment in ordered:
             start = segment["start"]

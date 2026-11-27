@@ -61,8 +61,7 @@ def retention_exits(corpus: Corpus, **eval_options) -> pd.DataFrame:
     """
     evals = positional_eval_by_perspective(corpus, **eval_options).set_index(["position_id", "perspective"])
     rows = []
-    for annotation_id, segments in corpus.segments.groupby("annotation_id", sort=False):
-        ordered = segments.sort_values("segment_index").to_dict("records")
+    for annotation_id, ordered in corpus.segments_by_annotation():
         for segment, following in zip(ordered, [*ordered[1:], None]):
             holder, perspective = _headline_holder(segment)
             row = {

@@ -27,8 +27,7 @@ def earned_transitions(corpus: Corpus) -> pd.DataFrame:
     in progress) is treated as a break too.
     """
     rows = []
-    for annotation_id, segments in corpus.segments.groupby("annotation_id", sort=False):
-        ordered = segments.sort_values("segment_index").to_dict("records")
+    for annotation_id, ordered in corpus.segments_by_annotation():
         for before, after in zip(ordered, ordered[1:]):
             if after["transition_type"] in (None, RESET) or pd.isna(after["transition_type"]):
                 continue
