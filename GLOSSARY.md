@@ -100,6 +100,10 @@ _Avoid_: Outcome, verdict
 How a Match was decided: submission, points, advantages, referee decision, disqualification, or draw.
 _Avoid_: Win type, finish type
 
+**Payoff**:
+Whether any Score Event or submission finish, for either Athlete, follows entry into a Position within a short horizon (30s by default, cut short by the next Reset or the Match end). Payoff rate is the short-term counterpart of the Positional Eval.
+_Avoid_: Short-horizon outcome, outcome
+
 **Event**:
 A timestamped point occurrence within a Match, of a typed kind. Score Events are the only kind for now; Attempts would be a future kind.
 _Avoid_: Action, marker
