@@ -1,0 +1,22 @@
+{
+  "name": "bjj-graph-annotator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local annotation tool for labelling Matches",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.11",
+    "@types/youtube": "^0.3.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "typescript": "~5.9",
+    "vite": "^8.4.0",
+    "vitest": "^5.1.2"
+  }
+}
