@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -46,8 +47,7 @@ def eval_contributions(corpus: Corpus, *, cap: float = DEFAULT_CAP) -> pd.DataFr
         row["annotation_id"]: (row["winner"], row["method"]) for row in corpus.matches.to_dict("records")
     }
     segments = corpus.segments.copy()
-    perspective = segments["initiator"].where(segments["symmetric"], segments["first_role_holder"])
-    segments["athlete"] = perspective
+    segments["athlete"] = [perspective_holder(segment)[0] for segment in segments.to_dict("records")]
     segments = segments[segments["athlete"].notna()]
     segments = segments[segments["annotation_id"].map(lambda i: _has_result(results[i]))]
     segments["segment_weight"] = segments["duration"].clip(upper=cap) / cap
@@ -70,6 +70,20 @@ FIRST_ROLE = "first_role"
 SECOND_ROLE = "second_role"
 INITIATOR = "initiator"
 OPPONENT = "opponent"
+
+
+def perspective_holder(segment: Mapping[str, Any]) -> tuple[str | None, str | None]:
+    """The Athlete a Segment's headline Eval is about, and that perspective.
+
+    The Initiator of the incoming Transition for a symmetric Position, else
+    the first Role holder. `(None, None)` when that Athlete isn't recorded.
+    """
+    holder, perspective = (
+        (segment["initiator"], INITIATOR) if segment["symmetric"] else (segment["first_role_holder"], FIRST_ROLE)
+    )
+    if holder is None or pd.isna(holder):
+        return None, None
+    return holder, perspective
 
 EVAL_COLUMNS = [
     "position_id",

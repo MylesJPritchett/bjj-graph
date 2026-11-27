@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 
 from .corpus import Corpus
-from .positional_eval import FIRST_ROLE, INITIATOR, OPPONENT, SECOND_ROLE, positional_eval_by_perspective
+from .positional_eval import INITIATOR, OPPONENT, SECOND_ROLE, perspective_holder, positional_eval_by_perspective
 from .vocabulary import RESET
 
 #: How a Segment ends.
@@ -63,7 +63,7 @@ def retention_exits(corpus: Corpus, **eval_options) -> pd.DataFrame:
     rows = []
     for annotation_id, ordered in corpus.segments_by_annotation():
         for segment, following in zip(ordered, [*ordered[1:], None]):
-            holder, perspective = _headline_holder(segment)
+            holder, perspective = perspective_holder(segment)
             row = {
                 "annotation_id": annotation_id,
                 "segment_index": segment["segment_index"],
@@ -163,17 +163,9 @@ def retention(corpus: Corpus, **eval_options) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=RETENTION_COLUMNS)
 
 
-def _headline_holder(segment: dict) -> tuple[str | None, str | None]:
-    holder, perspective = (
-        (segment["initiator"], INITIATOR) if segment["symmetric"] else (segment["first_role_holder"], FIRST_ROLE)
-    )
-    holder = _present(holder)
-    return (holder, perspective) if holder is not None else (None, None)
-
-
 def _perspective_of(athlete: str, segment: dict) -> str | None:
     """The perspective `athlete` holds in `segment`, or None if it isn't recorded."""
-    holder, headline = _headline_holder(segment)
+    holder, headline = perspective_holder(segment)
     if holder is None:
         return None
     if holder == athlete:
@@ -197,7 +189,3 @@ def _judge(row: dict) -> str | None:
     if row["next_p_win_high"] < row["p_win_low"]:
         return WORSE
     return NEUTRAL
-
-
-def _present(value):
-    return None if value is None or pd.isna(value) else value
