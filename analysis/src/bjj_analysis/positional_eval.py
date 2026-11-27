@@ -6,7 +6,7 @@ from collections.abc import Sequence
 
 import pandas as pd
 
-from .corpus import Corpus
+from .corpus import DRAW, Corpus
 
 #: The default saturation cap, in seconds.
 DEFAULT_CAP = 30.0
@@ -33,7 +33,8 @@ def eval_contributions(corpus: Corpus, *, cap: float = DEFAULT_CAP) -> pd.DataFr
     symmetric one. Each Segment weighs `min(duration, cap) / cap`;
     `raw_weight` is their sum and `weight` is that sum capped at 1, so one
     Match counts at most once per Position per Athlete. `outcome` is the
-    Match Result from the Athlete's side (win / loss / draw).
+    Match Result from the Athlete's side (win / loss / draw); only a Result
+    whose Method is `draw` counts as a draw.
 
     Segments with no perspective (a symmetric Position entered by a Reset or
     at the Match start, or a Role holder not yet recorded) and Matches with
@@ -58,7 +59,7 @@ def eval_contributions(corpus: Corpus, *, cap: float = DEFAULT_CAP) -> pd.DataFr
     )
     table["weight"] = table["raw_weight"].clip(upper=1.0)
     table["outcome"] = [
-        _outcome(results[annotation_id][0], athlete)
+        _outcome(results[annotation_id], athlete)
         for annotation_id, athlete in zip(table["annotation_id"], table["athlete"])
     ]
     return table[CONTRIBUTION_COLUMNS]
@@ -226,11 +227,13 @@ def eval_sensitivity(corpus: Corpus, *, caps: Sequence[float] = SENSITIVITY_CAPS
 
 
 def _has_result(result: tuple) -> bool:
-    _, method = result
-    return method is not None and not pd.isna(method)
+    """True for a complete Result: a Method, with a winner unless the Method is a draw."""
+    winner, method = (None if value is None or pd.isna(value) else value for value in result)
+    return method is not None and (method == DRAW) == (winner is None)
 
 
-def _outcome(winner, athlete: str) -> str:
-    if winner is None or pd.isna(winner):
+def _outcome(result: tuple, athlete: str) -> str:
+    winner, method = result
+    if method == DRAW:
         return "draw"
     return "win" if winner == athlete else "loss"

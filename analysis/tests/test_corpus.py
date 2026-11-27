@@ -44,6 +44,28 @@ def test_an_annotation_that_breaks_the_schema_is_rejected_and_reported(tmp_path)
     assert set(corpus.segments["annotation_id"]) == {"good"}
 
 
+def test_a_result_whose_winner_and_method_disagree_is_rejected(tmp_path):
+    draw_with_winner = simple_match("draw-with-winner").build()
+    draw_with_winner["result"] = {"winner": A, "method": "draw"}
+    points_without_winner = simple_match("points-without-winner").build()
+    points_without_winner["result"] = {"method": "points"}
+    write_corpus(
+        tmp_path,
+        simple_match("good"),
+        AnnotationBuilder("drawn").segment("standing", 20).result(method="draw"),
+        draw_with_winner,
+        points_without_winner,
+    )
+
+    corpus = load_corpus(tmp_path)
+
+    assert sorted(corpus.matches["annotation_id"]) == ["drawn", "good"]
+    rejected = corpus.rejected.set_index("file")["errors"]
+    assert sorted(rejected.index) == ["draw-with-winner.json", "points-without-winner.json"]
+    assert "a draw has no winner" in rejected["draw-with-winner.json"]
+    assert "Method 'points' needs a winner" in rejected["points-without-winner.json"]
+
+
 def test_a_file_that_is_not_json_is_rejected_and_reported(tmp_path):
     write_corpus(tmp_path, simple_match("good"))
     write_raw(tmp_path, "truncated.json", '{"id": "truncated", ')

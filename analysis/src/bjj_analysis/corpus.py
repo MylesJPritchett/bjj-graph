@@ -49,6 +49,9 @@ SEGMENT_COLUMNS = [
 
 REJECTED_COLUMNS = ["file", "errors"]
 
+#: The Method of a Match with no winner.
+DRAW = "draw"
+
 #: One accepted value, or a collection of accepted values.
 MetadataFilter = str | Collection[str] | None
 
@@ -166,6 +169,7 @@ def _read_annotation(
         f"{'/'.join(str(p) for p in error.absolute_path) or '<root>'}: {error.message}"
         for error in sorted(validator.iter_errors(doc), key=lambda e: list(e.absolute_path))
     ]
+    errors.extend(_result_errors(doc))
     if errors:
         return None, errors
 
@@ -176,6 +180,23 @@ def _read_annotation(
         if transition_type is not None and transition_type not in vocabulary.transitions:
             errors.append(f"segments/{index}: unknown Transition type {transition_type!r}")
     return doc, errors
+
+
+def _result_errors(doc: Any) -> list[str]:
+    """A Result's winner must agree with its Method: a draw has no winner, every other Method has one.
+
+    The schema says so too; this is checked again here because the Positional
+    Eval reads a missing winner as a draw.
+    """
+    result = doc.get("result") if isinstance(doc, dict) else None
+    if not isinstance(result, dict) or "method" not in result:
+        return []
+    method, has_winner = result["method"], result.get("winner") is not None
+    if method == DRAW and has_winner:
+        return ["result: a draw has no winner"]
+    if method != DRAW and not has_winner:
+        return [f"result: Method {method!r} needs a winner"]
+    return []
 
 
 def _match_row(path: Path, doc: dict[str, Any]) -> dict[str, Any]:
