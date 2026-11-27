@@ -1,7 +1,16 @@
 // UI state: the current session plus transient messages. All Annotation
 // changes go through `dispatch`, which runs a session command.
 
-import { apply, violationsOf, type Command, type Session, type SessionContext, type Violation } from "../session/session";
+import {
+  apply,
+  violationsOf,
+  withRegistry,
+  type Command,
+  type Session,
+  type SessionContext,
+  type Violation,
+} from "../session/session";
+import type { AthleteRegistry } from "../session/types";
 
 export interface Notice {
   kind: "error" | "info";
@@ -52,6 +61,13 @@ export class Store {
   /** Replaces the whole session, e.g. after creating or opening an Annotation. */
   open(session: Session, dirty = false) {
     this.set({ session, violations: violationsOf(session), dirty, notice: undefined });
+  }
+
+  /** Swaps in the registry after an Athlete was added, so they can be picked straight away. */
+  updateRegistry(registry: AthleteRegistry) {
+    const context = { ...this.state.context, registry };
+    const session = this.state.session && withRegistry(this.state.session, registry);
+    this.set({ context, session, violations: session ? violationsOf(session) : [] });
   }
 
   markSaved() {

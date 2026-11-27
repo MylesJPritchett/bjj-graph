@@ -15,7 +15,21 @@ export interface Session {
    * because the schema needs both together.
    */
   readonly bounds: { readonly start?: VideoTime; readonly end?: VideoTime };
+  /** Earlier and undone states, for undo and redo. Not saved with the Annotation. */
+  readonly history: History;
 }
+
+/** The part of a session that undo and redo restore. */
+export type Snapshot = Pick<Session, "annotation" | "bounds">;
+
+export interface History {
+  /** Most recent last. */
+  readonly past: readonly Snapshot[];
+  /** Most recently undone last. */
+  readonly future: readonly Snapshot[];
+}
+
+export const NO_HISTORY: History = { past: [], future: [] };
 
 /** Thrown by a command handler to refuse a command; the session stays unchanged. */
 export class CommandRejected extends Error {}

@@ -3,13 +3,16 @@
 //   2. add the type to `Command` and the handler to `handlers` below.
 // A handler is a pure function (session, command) => session. It calls
 // `reject(reason)` to refuse a command, which leaves the session unchanged.
+// Every command except undo and redo is undoable automatically.
 
 import type { Session } from "../state";
 import { setAthletes, type AthleteCommand } from "./athletes";
+import { deleteSegment, editSegment, moveBoundary, type EditingCommand } from "./editing";
+import { redo, undo, type HistoryCommand } from "./history";
 import { setMatchEnd, setMatchStart, type MatchCommand } from "./match";
 import { startSegment, type SegmentCommand } from "./segments";
 
-export type Command = MatchCommand | AthleteCommand | SegmentCommand;
+export type Command = MatchCommand | AthleteCommand | SegmentCommand | EditingCommand | HistoryCommand;
 
 type Handlers = { [T in Command["type"]]: (session: Session, command: Extract<Command, { type: T }>) => Session };
 
@@ -18,6 +21,16 @@ export const handlers: Handlers = {
   set_match_end: setMatchEnd,
   set_athletes: setAthletes,
   start_segment: startSegment,
+  move_boundary: moveBoundary,
+  delete_segment: deleteSegment,
+  edit_segment: editSegment,
+  undo,
+  redo,
 };
 
-export type { AthleteCommand, MatchCommand, SegmentCommand };
+/** Commands that move through the history rather than being recorded in it. */
+export const isHistoryCommand = (command: Command): command is HistoryCommand =>
+  command.type === "undo" || command.type === "redo";
+
+export type { AthleteCommand, EditingCommand, HistoryCommand, MatchCommand, SegmentCommand };
+export { recordChange } from "./history";
