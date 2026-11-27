@@ -1,4 +1,5 @@
 import pytest
+from scipy.stats import beta
 from corpus_builder import A, B, AnnotationBuilder, write_corpus
 
 from bjj_analysis import (
@@ -107,6 +108,21 @@ def test_next_position_distribution_is_smoothed_towards_the_family(tmp_path):
     assert rows[("open_guard", "mount")].probability == pytest.approx(82 / 243)
 
 
+def test_next_position_probabilities_carry_a_credible_interval(tmp_path):
+    # As above, closed_guard to mount has Dirichlet parameter 3 + 2 · 41/81 =
+    # 325/81 out of N + α = 6, so its marginal is Beta(325/81, 161/81).
+    corpus = load_corpus(guard_corpus(tmp_path))
+    rows = distribution_rows(next_position_distribution(corpus))
+    narrow = distribution_rows(next_position_distribution(corpus, credible_mass=0.5))
+
+    mount = rows[("closed_guard", "mount")]
+    assert mount.probability_low == pytest.approx(beta.ppf(0.05, 325 / 81, 161 / 81))
+    assert mount.probability_high == pytest.approx(beta.ppf(0.95, 325 / 81, 161 / 81))
+    assert mount.probability_low < mount.probability < mount.probability_high
+    wide, tight = rows[("open_guard", "mount")], narrow[("open_guard", "mount")]
+    assert wide.probability_low < tight.probability_low < tight.probability_high < wide.probability_high
+
+
 def test_without_a_prior_the_probability_is_the_observed_share(tmp_path):
     table = next_position_distribution(load_corpus(guard_corpus(tmp_path)), prior_strength=0)
 
@@ -139,3 +155,13 @@ def test_next_position_transitions_count_the_transition_types_into_each_next_pos
         {"next_position_id": "mount", "transition_type": "sweep", "count": 1, "share": pytest.approx(1 / 3)},
         {"next_position_id": "scramble", "transition_type": "sweep", "count": 1, "share": pytest.approx(1)},
     ]
+
+
+def test_transition_type_shares_carry_a_credible_interval(tmp_path):
+    # closed_guard to mount: 2 passes of 3. With prior_strength 1 spread over
+    # the 12 earned Transition types, the share's marginal is Beta(2 + 1/12, 1 + 11/12).
+    table = next_position_transitions(load_corpus(guard_corpus(tmp_path)))
+
+    passes = table[(table["position_id"] == "closed_guard") & (table["transition_type"] == "pass")].iloc[0]
+    assert passes["share_low"] == pytest.approx(beta.ppf(0.05, 2 + 1 / 12, 1 + 11 / 12))
+    assert passes["share_high"] == pytest.approx(beta.ppf(0.95, 2 + 1 / 12, 1 + 11 / 12))
