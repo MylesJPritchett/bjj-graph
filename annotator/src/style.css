@@ -228,3 +228,14 @@ kbd {
   padding-left: 18px;
   color: var(--error);
 }
+
+.add-athlete {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.add-athlete input[type="url"] {
+  min-width: 18em;
+}

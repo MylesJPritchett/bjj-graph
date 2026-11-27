@@ -4,7 +4,7 @@
 import { handlers, isHistoryCommand, recordChange, type Command } from "./commands";
 import { CommandRejected, NO_HISTORY, type Session, type SessionContext } from "./state";
 import { canonicalOrder } from "./serialize";
-import type { Annotation, Source } from "./types";
+import type { Annotation, AthleteRegistry, Source } from "./types";
 import { validate, type Violation } from "./validation";
 
 export type { Session, SessionContext } from "./state";
@@ -39,6 +39,11 @@ export function newSession(context: SessionContext, init: NewAnnotation): Sessio
 export function openSession(context: SessionContext, annotation: Annotation): Session {
   const bounds = annotation.match ? { start: annotation.match.start_offset, end: annotation.match.end_offset } : {};
   return { context, annotation, bounds, history: NO_HISTORY };
+}
+
+/** The same session against an updated Athlete registry, e.g. after adding an Athlete mid-Match. */
+export function withRegistry(session: Session, registry: AthleteRegistry): Session {
+  return { ...session, context: { ...session.context, registry } };
 }
 
 export interface Outcome {
