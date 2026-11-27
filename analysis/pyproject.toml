@@ -16,6 +16,9 @@ dependencies = [
     "pandas==3.1.1",
 ]
 
+[project.scripts]
+bjj-agreement = "bjj_analysis.agreement:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest==9.2.0",
