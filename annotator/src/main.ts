@@ -2,10 +2,11 @@
 
 import "./style.css";
 import { api } from "./ui/api";
-import { bindKeys, playbackBindings, positionBindings } from "./ui/keyboard";
+import { bindKeys, playbackBindings, positionBindings, transitionLegend } from "./ui/keyboard";
 import { mountKeysPanel } from "./ui/panels/keys-panel";
 import { mountMatchPanel } from "./ui/panels/match-panel";
 import { mountSavePanel } from "./ui/panels/save-panel";
+import { mountSegmentPrompt } from "./ui/panels/segment-prompt-panel";
 import { mountSourcePanel } from "./ui/panels/source-panel";
 import { mountViolationsPanel } from "./ui/panels/violations-panel";
 import { mountPlayer } from "./ui/player/player-view";
@@ -26,12 +27,16 @@ async function main() {
   mountTimeline(slot("timeline"), store, player);
   mountViolationsPanel(slot("violations"), store);
 
+  const segmentPrompt = mountSegmentPrompt(slot("segment-prompt"), store);
+
   const playback = playbackBindings(player);
-  const positions = positionBindings(context, store, player);
+  const positions = positionBindings(context, segmentPrompt, player);
   bindKeys([...playback, ...positions]);
   mountKeysPanel(slot("keys"), [
     { title: "Playback", bindings: playback },
     { title: "Positions", bindings: positions },
+    // Not bound globally: these keys only answer the prompt that follows a Position hotkey.
+    { title: "Transitions (in the prompt)", bindings: transitionLegend(context) },
   ]);
 }
 

@@ -20,12 +20,27 @@ export function mountViolationsPanel(root: HTMLElement, store: Store) {
   const list = h("ul", { class: "violations" });
   root.append(heading, list);
 
-  store.subscribe(({ session, violations }) => {
+  store.subscribe(({ session, violations, highlighted }) => {
     heading.textContent = session ? `Violations (${violations.length})` : "Violations";
     list.replaceChildren(
       ...violations.map((v) =>
-        h("li", { "data-rule": v.rule }, h("strong", {}, describeTarget(v.target)), ": ", v.message),
+        h(
+          "li",
+          {
+            "data-rule": v.rule,
+            class: sameTarget(v.target, highlighted) ? "highlighted" : undefined,
+            title: "Highlight on the timeline",
+            onclick: () => store.highlight(sameTarget(v.target, store.state.highlighted) ? undefined : v.target),
+          },
+          h("strong", {}, describeTarget(v.target)),
+          ": ",
+          v.message,
+        ),
       ),
     );
   });
+}
+
+function sameTarget(a: ViolationTarget, b: ViolationTarget | undefined): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }

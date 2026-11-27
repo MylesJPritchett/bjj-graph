@@ -26,7 +26,8 @@ Until the tool can add Athletes itself, add them to `vocab/athletes.json` by han
 2. Seek to the referee's start and press **Set from playhead** for the Match start; do the same for the Match end.
 3. Pick the two Athletes.
 4. Play the Match and press a Position hotkey whenever a new Position is established (backdated to when it was first reached, per the Label Guide). The current Segment closes at the playhead and the new one runs until the next. The first Segment always starts at the Match start.
-5. Save with **Save** or Ctrl+S. Work in progress saves fine; open violations are listed below the timeline.
+   A prompt then asks how the new Segment was reached: press the Transition type's key, then `1` or `2` for the Initiator, then `1` or `2` for the Athlete in the Position's first Role (e.g. the guard player). Symmetric Positions skip the Role holder, a Reset skips the Initiator, and the first Segment skips the Transition. `Esc` cancels; nothing changes until the last answer is in.
+5. Save with **Save** or Ctrl+S. Work in progress saves fine; open violations are listed below the timeline. Click one to highlight its Segment on the timeline.
 
 Playback keys: `k` or Space play/pause, `←` `→` 1s, `j` `l` 5s, `,` `.` one frame, `[` `]` speed. The full key legend, including every Position hotkey, is shown beside the player.
 

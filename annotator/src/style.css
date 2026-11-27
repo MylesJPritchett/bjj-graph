@@ -6,6 +6,8 @@
   --border: #d9d9d4;
   --error: #b42318;
   --info: #1a7f37;
+  --highlight: #d97706;
+  --highlight-bg: #fef3c7;
   font-family: system-ui, sans-serif;
   font-size: 14px;
   color: var(--text);
@@ -197,4 +199,50 @@ kbd {
   margin: 0;
   padding-left: 18px;
   color: var(--error);
+}
+
+.violations li {
+  cursor: pointer;
+}
+
+.violations li.highlighted {
+  background: var(--highlight-bg);
+}
+
+.timeline-segment.highlighted {
+  outline: 3px solid var(--highlight);
+  outline-offset: -3px;
+  z-index: 1;
+}
+
+.segment-prompt {
+  border-color: var(--highlight);
+}
+
+.segment-prompt[hidden] {
+  display: none;
+}
+
+.segment-prompt h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.prompt-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prompt-options li {
+  cursor: pointer;
+}
+
+.prompt-hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }

@@ -2,6 +2,7 @@
 // changes go through `dispatch`, which runs a session command.
 
 import { apply, violationsOf, type Command, type Session, type SessionContext, type Violation } from "../session/session";
+import type { ViolationTarget } from "../session/validation";
 
 export interface Notice {
   kind: "error" | "info";
@@ -15,6 +16,8 @@ export interface AppState {
   /** True when the session has changes not yet saved. */
   dirty: boolean;
   notice?: Notice;
+  /** What the annotator last picked in the violations panel; cleared by any change. */
+  highlighted?: ViolationTarget;
 }
 
 type Listener = (state: AppState) => void;
@@ -45,13 +48,17 @@ export class Store {
       this.notify({ kind: "error", text: outcome.rejection });
       return false;
     }
-    this.set({ session: outcome.session, violations: violationsOf(outcome.session), dirty: true, notice: undefined });
+    this.set({ session: outcome.session, violations: violationsOf(outcome.session), dirty: true, notice: undefined, highlighted: undefined });
     return true;
   }
 
   /** Replaces the whole session, e.g. after creating or opening an Annotation. */
   open(session: Session, dirty = false) {
-    this.set({ session, violations: violationsOf(session), dirty, notice: undefined });
+    this.set({ session, violations: violationsOf(session), dirty, notice: undefined, highlighted: undefined });
+  }
+
+  highlight(target: ViolationTarget | undefined) {
+    this.set({ highlighted: target });
   }
 
   markSaved() {

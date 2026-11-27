@@ -24,8 +24,10 @@ export function mountTimeline(root: HTMLElement, store: Store, player: VideoPlay
   }
 
   let session: Session | null = null;
+  let highlightedSegment: number | undefined;
   store.subscribe((state) => {
     session = state.session;
+    highlightedSegment = state.highlighted?.kind === "segment" ? state.highlighted.index : undefined;
     render();
   });
 
@@ -39,13 +41,13 @@ export function mountTimeline(root: HTMLElement, store: Store, player: VideoPlay
     }
     const span = match.end_offset - match.start_offset;
     scale.append(h("span", {}, formatTime(match.start_offset)), h("span", {}, formatTime(match.end_offset)));
-    session.annotation.segments.forEach((segment) => {
+    session.annotation.segments.forEach((segment, index) => {
       const position = vocabulary.positions.find((p) => p.id === segment.position_id);
       segmentsLayer.append(
         h(
           "div",
           {
-            class: "timeline-segment",
+            class: index === highlightedSegment ? "timeline-segment highlighted" : "timeline-segment",
             title: `${position?.name ?? segment.position_id}  ${formatTime(segment.start)} to ${formatTime(segment.end)}`,
             style: {
               left: `${((segment.start - match.start_offset) / span) * 100}%`,
