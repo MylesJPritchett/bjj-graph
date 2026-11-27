@@ -62,3 +62,14 @@ Or open it in VS Code and pick `.venv` as the kernel. While `annotations/` is em
 | `eval_contributions(corpus, cap=30)` | What each Match × Position × Athlete contributes: Segment count, `raw_weight` (summed `min(duration, cap) / cap`), `weight` (capped at 1) and the outcome for that Athlete. |
 | `eval_sensitivity(corpus, caps=(15, 30, 60), ...)` | `positional_eval` re-run at each cap, stacked with a `cap` column. |
 | `transition_network(corpus)` / `plot_transition_network(graph, node_color=None)` | A networkx graph (nodes are Positions, edges carry earned Transition `count`) and a static plot of it. `node_color` takes a value per Position, for example a Positional Eval. |
+| `agreement_report(corpus)` | Self-consistency of blind re-labels; load with `include_relabels=True`. An `AgreementReport` holding five tables. `pairs` gives, per original/re-label pair, the share of Match time with the same Family, the same Position, and the same Position and Role holder, plus the edit-distance alignment of the Transition sequences. `positions` and `transitions` rank disagreement, most first. `confusions` sets the original Position against the re-label's, by time. `unpaired` lists re-labels whose original is missing. |
+
+## Self-consistency report
+
+Run the agreement report over every re-label pair in a Corpus with one command:
+
+```
+.venv/bin/bjj-agreement annotations/
+```
+
+The notebook's last section shows the same tables. Re-labels are made in the annotator with **Start re-label** and never enter the main statistics.

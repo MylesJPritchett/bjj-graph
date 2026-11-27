@@ -6,7 +6,8 @@ import type { Annotation } from "../types";
 import { minimumDuration } from "./duration";
 import { knownAthletes, knownPosition, twoAthletes } from "./known-ids";
 import { resultPresent, scoreEventInMatch, submissionFinish } from "./scoring";
-import { matchBoundsSet, segmentsTileMatch } from "./timeline";
+import { initiator, roleHolder, transitionRecorded } from "./segment-labels";
+import { adjacentSegmentsDiffer, matchBoundsSet, segmentsTileMatch } from "./timeline";
 import type { Rule, Violation } from "./violation";
 
 export type { Rule, Violation, ViolationTarget } from "./violation";
@@ -18,7 +19,11 @@ export const rules: Rule[] = [
   knownAthletes,
   // Segments
   segmentsTileMatch,
+  adjacentSegmentsDiffer,
   knownPosition,
+  roleHolder,
+  transitionRecorded,
+  initiator,
   minimumDuration,
   // Score Events and Result
   scoreEventInMatch,

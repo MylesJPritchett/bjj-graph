@@ -2,6 +2,27 @@ import type { Rule, Violation } from "./violation";
 
 const segmentAt = (index: number) => ({ kind: "segment", index }) as const;
 
+/**
+ * Adjacent Segments differ in Position or Role holder; otherwise nothing happened
+ * and the earlier Segment simply continues. The same Position either side of a
+ * Reset is expected.
+ */
+export const adjacentSegmentsDiffer: Rule = ({ segments }) =>
+  segments.flatMap((segment, index) => {
+    const previous = segments[index - 1];
+    if (!previous || segment.entered_by?.transition_type === "reset") return [];
+    if (segment.position_id !== previous.position_id || segment.first_role_holder !== previous.first_role_holder) {
+      return [];
+    }
+    return [
+      {
+        rule: "adjacent-duplicate",
+        message: "Same Position and Role holder as the Segment before it: merge them.",
+        target: segmentAt(index),
+      },
+    ];
+  });
+
 /** The Match bounds are set. */
 export const matchBoundsSet: Rule = (annotation) =>
   annotation.match

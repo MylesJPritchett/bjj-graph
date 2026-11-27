@@ -2,7 +2,7 @@
 
 import "./style.css";
 import { api } from "./ui/api";
-import { bindKeys, historyBindings, playbackBindings, positionBindings, scoreBindings } from "./ui/keyboard";
+import { bindKeys, historyBindings, playbackBindings, positionBindings, scoreBindings, transitionLegend } from "./ui/keyboard";
 import { mountKeysPanel } from "./ui/panels/keys-panel";
 import { mountMatchPanel } from "./ui/panels/match-panel";
 import { mountMetadataPanel } from "./ui/panels/metadata-panel";
@@ -10,6 +10,7 @@ import { mountResultPanel } from "./ui/panels/result-panel";
 import { mountSavePanel } from "./ui/panels/save-panel";
 import { mountScoreDialog } from "./ui/panels/score-dialog";
 import { mountSegmentEditor } from "./ui/panels/segment-editor";
+import { mountSegmentPrompt } from "./ui/panels/segment-prompt-panel";
 import { mountSourcePanel } from "./ui/panels/source-panel";
 import { mountViolationsPanel } from "./ui/panels/violations-panel";
 import { mountPlayer } from "./ui/player/player-view";
@@ -34,11 +35,13 @@ async function main() {
   const scoreDialog = mountScoreDialog(document.body, store);
   mountTimeline(slot("timeline"), store, player, selection, scoreDialog);
   mountSegmentEditor(slot("segment-editor"), store, selection);
-  mountViolationsPanel(slot("violations"), store);
+  mountViolationsPanel(slot("violations"), store, selection);
+
+  const segmentPrompt = mountSegmentPrompt(slot("segment-prompt"), store);
 
   const playback = playbackBindings(player);
   const history = historyBindings(store);
-  const positions = positionBindings(context, store, player);
+  const positions = positionBindings(context, segmentPrompt, player);
   const scoring = scoreBindings(player, (time) => scoreDialog.add(time));
   bindKeys([...playback, ...history, ...positions, ...scoring]);
   mountKeysPanel(slot("keys"), [
@@ -46,6 +49,8 @@ async function main() {
     { title: "Edit", bindings: history },
     { title: "Positions", bindings: positions },
     { title: "Scoring", bindings: scoring },
+    // Not bound globally: these keys only answer the prompt that follows a Position hotkey.
+    { title: "Transitions (in the prompt)", bindings: transitionLegend(context) },
   ]);
 }
 

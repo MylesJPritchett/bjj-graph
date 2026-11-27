@@ -1,5 +1,7 @@
-// Start a new Annotation from a pasted video URL, or reopen a saved one.
+// Start a new Annotation from a pasted video URL, reopen a saved one, or
+// start a blind re-label of a saved one.
 
+import { startRelabel, suggestRelabelId } from "../../session/relabel";
 import { newSession, openSession } from "../../session/session";
 import { sourceFromUrl, suggestAnnotationId } from "../../session/source";
 import { api } from "../api";
@@ -71,6 +73,29 @@ export function mountSourcePanel(root: HTMLElement, store: Store) {
     }
   }
 
+  /**
+   * Re-labels the picked Annotation blind. The original is read only for its
+   * source, Match bounds, metadata and Athletes; its labels are never shown.
+   */
+  async function relabel() {
+    if (!existing.value) return store.notify({ kind: "error", text: "Pick the saved Annotation to re-label." });
+    if (!annotator.value.trim()) return store.notify({ kind: "error", text: "Enter who is annotating." });
+    if (!confirmDiscard()) return;
+    try {
+      const [original, ids] = await Promise.all([api.readAnnotation(existing.value), refreshList()]);
+      const outcome = startRelabel(store.state.context, original, {
+        id: suggestRelabelId(original.id, ids),
+        annotator: annotator.value.trim(),
+      });
+      if (!outcome.session) return store.notify({ kind: "error", text: outcome.rejection ?? "Couldn't start the re-label." });
+      rememberAnnotator(annotator.value.trim());
+      store.open(outcome.session, true);
+      store.notify({ kind: "info", text: `Re-labelling ${original.id} blind. Seek to the Match start and label from there.` });
+    } catch (error) {
+      store.notify({ kind: "error", text: `Couldn't start the re-label: ${(error as Error).message}` });
+    }
+  }
+
   root.append(
     h(
       "div",
@@ -80,7 +105,13 @@ export function mountSourcePanel(root: HTMLElement, store: Store) {
       h("label", {}, "Annotator ", annotator),
       h("button", { onclick: create }, "New Annotation"),
     ),
-    h("div", { class: "row" }, existing, h("button", { onclick: open }, "Open")),
+    h(
+      "div",
+      { class: "row" },
+      existing,
+      h("button", { onclick: open }, "Open"),
+      h("button", { onclick: relabel, title: "A new, linked Annotation of the same Match, without the original's labels" }, "Start re-label"),
+    ),
   );
   // Refresh the saved list on load and after each save.
   let wasDirty = true;
