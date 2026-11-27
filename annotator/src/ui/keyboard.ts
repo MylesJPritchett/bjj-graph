@@ -42,6 +42,13 @@ export function positionBindings(context: SessionContext, store: Store, player: 
   }));
 }
 
+export function historyBindings(store: Store): KeyBinding[] {
+  return [
+    { key: "z", label: "undo", run: () => store.dispatch({ type: "undo" }) },
+    { key: "y", label: "redo", run: () => store.dispatch({ type: "redo" }) },
+  ];
+}
+
 function isTyping(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLInputElement ||
