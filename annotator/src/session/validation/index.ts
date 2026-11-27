@@ -4,6 +4,7 @@
 import type { SessionContext } from "../state";
 import type { Annotation } from "../types";
 import { knownAthletes, knownPosition, twoAthletes } from "./known-ids";
+import { resultPresent, scoreEventInMatch, submissionFinish } from "./scoring";
 import { matchBoundsSet, segmentsTileMatch } from "./timeline";
 import type { Rule, Violation } from "./violation";
 
@@ -17,6 +18,10 @@ export const rules: Rule[] = [
   // Segments
   segmentsTileMatch,
   knownPosition,
+  // Score Events and Result
+  scoreEventInMatch,
+  resultPresent,
+  submissionFinish,
 ];
 
 export function validate(annotation: Annotation, context: SessionContext): Violation[] {

@@ -40,6 +40,34 @@ describe("save and reload", () => {
     expect(schemaErrors(JSON.parse(toJson(session.annotation)))).toEqual([]);
   });
 
+  it("work in progress with open scoring violations still saves as schema-valid, with the violations listed", () => {
+    const session = run(labelledMatch(), [
+      { type: "add_score_event", time: 400, athlete: "alex-example", score_type: "points", value: 2 },
+      { type: "set_metadata", metadata: { event: "Example Open 2026" } },
+    ]);
+
+    expect(violationsOf(session).map((v) => v.rule)).toEqual(
+      expect.arrayContaining(["score-event-in-match", "result-present"]),
+    );
+    expect(schemaErrors(JSON.parse(toJson(session.annotation)))).toEqual([]);
+  });
+
+  it("Score Events, the Result and metadata survive save and reload", () => {
+    const original = run(labelledMatch(), [
+      { type: "set_metadata", metadata: { event: "Example Open 2026", ruleset: "adcc", gi: false } },
+      { type: "set_licence", licence_status: "official-channel" },
+      { type: "add_score_event", time: 100, athlete: "sam-example", score_type: "advantage" },
+      { type: "set_result", result: { winner: "sam-example", method: "advantages" } },
+    ]);
+    const saved = toJson(original.annotation);
+
+    const reopened = openSession(sampleContext(), fromJson(saved));
+
+    expect(schemaErrors(JSON.parse(saved))).toEqual([]);
+    expect(reopened.annotation).toEqual(original.annotation);
+    expect(violationsOf(reopened)).toEqual(violationsOf(original));
+  });
+
   it("save -> reload -> save leaves the document and its violations unchanged", () => {
     const original = labelledMatch();
     const saved = toJson(original.annotation);
