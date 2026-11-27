@@ -30,12 +30,17 @@ Until the tool can add Athletes itself, add them to `vocab/athletes.json` by han
 
 Playback keys: `k` or Space play/pause, `←` `→` 1s, `j` `l` 5s, `,` `.` one frame, `[` `]` speed. The full key legend, including every Position hotkey, is shown beside the player.
 
+## Re-labelling a Match blind
+
+To check your own consistency, re-label about 10% of Matches at least a week after the first pass. Pick the saved Annotation, enter your name and press **Start re-label**. The tool creates `<id>-relabel` (or `-relabel-2` and so on), linked to the original by `relabel_of`. It copies the source, Match bounds, metadata and Athletes, and none of the original's Segments, Score Events or Result. The original's labels are never shown. Label it as usual, then save. The analysis leaves re-labels out of the main statistics and compares each one with its original (`agreement_report` in `analysis/`).
+
 ## Layout
 
 | Path | What it is |
 | --- | --- |
 | `src/session/` | The annotation session module: pure TypeScript, no DOM. Commands in, Annotation and violations out. |
 | `src/session/commands/` | One file per command area. Register new commands in `commands/index.ts`. |
+| `src/session/relabel.ts` | Starting a blind re-label from a saved Annotation. |
 | `src/session/validation/` | One file per group of rules. Register new rules in `validation/index.ts`. |
 | `src/ui/` | The thin UI shell: `player/`, `timeline/`, `panels/`, the keyboard map and the store. |
 | `server/` | The dev-server data API (`/api/...`) and JSON Schema checks. Saves are rejected unless they match `vocab/annotation.schema.json`. |
