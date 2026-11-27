@@ -3,6 +3,7 @@
 
 import type { SessionContext } from "../state";
 import type { Annotation } from "../types";
+import { minimumDuration } from "./duration";
 import { knownAthletes, knownPosition, twoAthletes } from "./known-ids";
 import { matchBoundsSet, segmentsTileMatch } from "./timeline";
 import type { Rule, Violation } from "./violation";
@@ -17,6 +18,7 @@ export const rules: Rule[] = [
   // Segments
   segmentsTileMatch,
   knownPosition,
+  minimumDuration,
 ];
 
 export function validate(annotation: Annotation, context: SessionContext): Violation[] {
