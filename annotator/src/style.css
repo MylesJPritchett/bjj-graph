@@ -199,7 +199,7 @@ kbd {
   background: var(--panel);
 }
 
-.score-marker {
+.score-event {
   position: absolute;
   top: 2px;
   height: 18px;
@@ -214,19 +214,19 @@ kbd {
   color: #fff;
 }
 
-.score-marker.athlete-0 {
+.score-event.athlete-0 {
   background: #1f5fbf;
 }
 
-.score-marker.athlete-1 {
+.score-event.athlete-1 {
   background: #b5531c;
 }
 
-.score-marker.athlete-unknown {
+.score-event.athlete-unknown {
   background: var(--muted);
 }
 
-.score-marker.flagged {
+.score-event.flagged {
   outline: 2px solid var(--error);
   outline-offset: 1px;
 }

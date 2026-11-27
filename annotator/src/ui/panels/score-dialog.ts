@@ -1,5 +1,5 @@
 // The Score Event dialog: records a new Score Event at the playhead, or edits
-// or deletes an existing one (opened from its timeline marker).
+// or deletes an existing one (opened from its Score Event glyph on the timeline).
 
 import type { ScoreEventFields } from "../../session/commands/events";
 import type { ScoreEvent } from "../../session/types";
@@ -124,7 +124,7 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
   };
 }
 
-/** One-line description of a Score Event, for marker tooltips. */
+/** One-line description of a Score Event, for Score Event glyph tooltips. */
 export function describeScoreEvent(event: ScoreEvent, name: string): string {
   const type = SCORE_TYPES.find((t) => t.id === event.score_type)?.label ?? event.score_type;
   return `${formatTime(event.time)}  ${name}: ${type}${event.value === undefined ? "" : ` ${event.value}`}${event.note ? ` (${event.note})` : ""}`;

@@ -1,8 +1,8 @@
 // The timeline strip: the Match's Segments coloured by Family, a playhead,
 // and a Family legend. Click a Segment to seek to it and open it in the
 // Segment editor; drag the handle between two Segments to retime a Transition.
-// Score Events sit on their own track below the Segments; clicking a marker
-// seeks to it and opens it for editing.
+// Score Events sit on their own track below the Segments; clicking a Score Event
+// glyph seeks to it and opens it for editing.
 
 import type { Session } from "../../session/session";
 import { formatTime, h } from "../dom";
@@ -107,7 +107,7 @@ export function mountTimeline(
           "button",
           {
             type: "button",
-            class: `score-marker athlete-${side < 0 ? "unknown" : side}${flagged.has(index) ? " flagged" : ""}`,
+            class: `score-event athlete-${side < 0 ? "unknown" : side}${flagged.has(index) ? " flagged" : ""}`,
             title: describeScoreEvent(event, registry.athletes[event.athlete]?.name ?? event.athlete),
             style: { left: `${fraction * 100}%` },
             onclick: () => {
@@ -162,7 +162,7 @@ export function mountTimeline(
   tick();
 }
 
-/** A Score Event marker's short label: the value for points, otherwise an initial. */
+/** A Score Event glyph's short label: the value for points, otherwise an initial. */
 function scoreLabel(scoreType: string, value?: number): string {
   if (scoreType === "points") return value === undefined ? "P" : String(value);
   const labels: Record<string, string> = { advantage: "A", penalty: "!", submission_finish: "S", submission_attempt: "a" };
