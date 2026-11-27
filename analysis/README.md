@@ -69,6 +69,11 @@ Or open it in VS Code and pick `.venv` as the kernel. While `annotations/` is em
 | `transition_network(corpus)` / `plot_transition_network(graph, node_color=None)` | A networkx graph (nodes are Positions, edges carry earned Transition `count`) and a static plot of it. `node_color` takes a value per Position, for example a Positional Eval. |
 | `agreement_report(corpus)` | Self-consistency of blind re-labels; load with `include_relabels=True`. An `AgreementReport` holding five tables. `pairs` gives, per original/re-label pair, the share of Match time with the same Family, the same Position, and the same Position and Role holder, plus the edit-distance alignment of the Transition sequences. `positions` and `transitions` rank disagreement, most first. `confusions` sets the original Position against the re-label's, by time. `unpaired` lists re-labels whose original is missing. |
 
+## Reading the measures
+
+- **Retention** judges an earned exit on the holder's P(win) intervals only (90% by default): `better` or `worse` when the interval in the Position entered lies wholly above or below the one in the Position left, `neutral` when they overlap. P(loss) and P(draw) are not compared.
+- **Payoff** looks at the window [entry, min(entry + horizon, next Reset, Match end)]. Both ends are included, so a Score Event at the instant of entry counts for the Position entered. A Match won by submission with no `submission_finish` Score Event counts as a finish at the Match end.
+
 ## Self-consistency report
 
 Run the agreement report over every re-label pair in a Corpus with one command:

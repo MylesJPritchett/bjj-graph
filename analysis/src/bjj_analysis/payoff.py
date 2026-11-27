@@ -24,14 +24,16 @@ ENTRY_COLUMNS = [
 def payoff_entries(corpus: Corpus, *, horizon: float = DEFAULT_HORIZON) -> pd.DataFrame:
     """One row per Segment (each entry into a Position) and whether something was scored soon after.
 
-    The window opens when the Segment starts and closes `horizon` seconds
-    later, at the start of the next Reset, or at the end of the Match,
-    whichever comes first. It runs on past the Segment's own end: the
-    question is where entering the Position leads, not what happens while it
-    is held. `payoff` is true if any Score Event, for either Athlete, falls
-    inside the window (both ends included). A Match won by submission counts
-    as a finish at the Match end even if no submission-finish Score Event
-    was recorded.
+    The window is [entry, min(entry + `horizon`, next Reset, Match end)]:
+    it opens when the Segment starts and closes `horizon` seconds later, at
+    the start of the next Reset, or at the end of the Match, whichever comes
+    first. It runs on past the Segment's own end: the question is where
+    entering the Position leads, not what happens while it is held.
+    `payoff` is true if any Score Event, for either Athlete, falls inside the
+    window. Both ends are included, so a Score Event at the very instant of
+    entry counts for the Position entered. A Match won by submission (Method
+    `submission`) with no `submission_finish` Score Event counts as a finish
+    at the Match end.
     """
     if horizon <= 0:
         raise ValueError("horizon must be positive")

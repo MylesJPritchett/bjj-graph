@@ -51,7 +51,9 @@ def retention_exits(corpus: Corpus, **eval_options) -> pd.DataFrame:
     in the Position entered, from whichever perspective they hold there
     (first or second Role; Initiator or opponent). The exit is `better` if
     the next credible interval lies wholly above the current one, `worse` if
-    wholly below, and `neutral` if the intervals overlap. Exits with no
+    wholly below, and `neutral` if the intervals overlap. Only the P(win)
+    intervals are compared: P(loss) and P(draw) play no part, so an exit that
+    trades draws for losses at the same P(win) is `neutral`. Exits with no
     holder (a symmetric Position entered by a Reset or at the Match start),
     a missing Role holder or Initiator, or no recorded Transition type are
     left unjudged (`judgement` empty).
