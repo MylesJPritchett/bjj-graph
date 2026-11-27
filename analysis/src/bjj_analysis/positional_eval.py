@@ -11,7 +11,7 @@ from .corpus import DRAW, Corpus
 #: The default saturation cap, in seconds.
 DEFAULT_CAP = 30.0
 
-OUTCOMES = ("win", "loss", "draw")
+RESULTS = ("win", "loss", "draw")
 
 CONTRIBUTION_COLUMNS = [
     "annotation_id",
@@ -21,7 +21,7 @@ CONTRIBUTION_COLUMNS = [
     "segments",
     "raw_weight",
     "weight",
-    "outcome",
+    "result",
 ]
 
 
@@ -32,7 +32,7 @@ def eval_contributions(corpus: Corpus, *, cap: float = DEFAULT_CAP) -> pd.DataFr
     an asymmetric Position, the Initiator of the incoming Transition for a
     symmetric one. Each Segment weighs `min(duration, cap) / cap`;
     `raw_weight` is their sum and `weight` is that sum capped at 1, so one
-    Match counts at most once per Position per Athlete. `outcome` is the
+    Match counts at most once per Position per Athlete. `result` is the
     Match Result from the Athlete's side (win / loss / draw); only a Result
     whose Method is `draw` counts as a draw.
 
@@ -58,8 +58,8 @@ def eval_contributions(corpus: Corpus, *, cap: float = DEFAULT_CAP) -> pd.DataFr
         .reset_index()
     )
     table["weight"] = table["raw_weight"].clip(upper=1.0)
-    table["outcome"] = [
-        _outcome(results[annotation_id], athlete)
+    table["result"] = [
+        _result_for(results[annotation_id], athlete)
         for annotation_id, athlete in zip(table["annotation_id"], table["athlete"])
     ]
     return table[CONTRIBUTION_COLUMNS]
@@ -81,9 +81,9 @@ EVAL_COLUMNS = [
     "matches",
     "segments",
     "weight",
-    *[f"p_{o}{suffix}" for o in OUTCOMES for suffix in ("", "_low", "_high")],
+    *[f"p_{o}{suffix}" for o in RESULTS for suffix in ("", "_low", "_high")],
     "family_weight",
-    *[f"family_p_{o}" for o in OUTCOMES],
+    *[f"family_p_{o}" for o in RESULTS],
 ]
 
 
@@ -119,7 +119,7 @@ def positional_eval_by_perspective(
     is pulled towards its Family and a well-sampled one keeps its own data.
     A Position with no other data in its Family (N_F = 0) gets φ_F = u, the
     plain uniform prior. `family_weight` is N_F and `family_p_*` is φ_F.
-    γ keeps every outcome a little prior mass, so a never-seen outcome (draws
+    γ keeps every Result a little prior mass, so a never-seen Result (draws
     in most Families) still gets an interval that contains its estimate.
 
     `p_*` is the posterior mean; `p_*_low` / `p_*_high` bound the equal-tailed
@@ -136,8 +136,8 @@ def positional_eval_by_perspective(
     vocabulary = corpus.vocabulary
     contributions = eval_contributions(corpus, cap=cap)
     counts = (
-        contributions.pivot_table(index="position_id", columns="outcome", values="weight", aggfunc="sum")
-        .reindex(columns=list(OUTCOMES))
+        contributions.pivot_table(index="position_id", columns="result", values="weight", aggfunc="sum")
+        .reindex(columns=list(RESULTS))
         .fillna(0.0)
     )
     sizes = contributions.groupby("position_id").agg(
@@ -147,15 +147,15 @@ def positional_eval_by_perspective(
     family_counts = counts.groupby(lambda p: vocabulary.family_of(p)).sum()
 
     tail = (1 - credible_mass) / 2
-    uniform = 1 / len(OUTCOMES)
+    uniform = 1 / len(RESULTS)
     rows = []
     for position_id in positions:
         family = vocabulary.family_of(position_id)
-        n = [float(counts.loc[position_id, o]) if position_id in counts.index else 0.0 for o in OUTCOMES]
+        n = [float(counts.loc[position_id, o]) if position_id in counts.index else 0.0 for o in RESULTS]
         # Leave the Position's own data out of its Family prior, so it isn't counted twice.
         n_family = [
             (float(family_counts.loc[family, o]) if family in family_counts.index else 0.0) - k
-            for o, k in zip(OUTCOMES, n)
+            for o, k in zip(RESULTS, n)
         ]
         family_total = sum(n_family)
         family_mean = [
@@ -164,19 +164,19 @@ def positional_eval_by_perspective(
         alpha = [k + prior_strength * f + base_prior_strength * uniform for k, f in zip(n, family_mean)]
         total = sum(alpha)
         estimate = {}
-        for outcome, a in zip(OUTCOMES, alpha):
-            estimate[outcome] = (
+        for result, a in zip(RESULTS, alpha):
+            estimate[result] = (
                 a / total,
                 float(beta.ppf(tail, a, total - a)),
                 float(beta.ppf(1 - tail, a, total - a)),
             )
-        family_estimate = dict(zip(OUTCOMES, family_mean))
+        family_estimate = dict(zip(RESULTS, family_mean))
         size = sizes.loc[position_id] if position_id in sizes.index else None
         symmetric = vocabulary.is_symmetric(position_id)
         roles = vocabulary.positions[position_id].get("roles") or [None, None]
         headline, mirror = (INITIATOR, OPPONENT) if symmetric else (FIRST_ROLE, SECOND_ROLE)
         for perspective, role, swap in ((headline, roles[0], False), (mirror, roles[1], True)):
-            seen = {"win": "loss", "loss": "win", "draw": "draw"} if swap else {o: o for o in OUTCOMES}
+            seen = {"win": "loss", "loss": "win", "draw": "draw"} if swap else {o: o for o in RESULTS}
             row = {
                 "position_id": position_id,
                 "name": vocabulary.positions[position_id]["name"],
@@ -189,12 +189,12 @@ def positional_eval_by_perspective(
                 "weight": float(size["weight"]) if size is not None else 0.0,
                 "family_weight": family_total,
             }
-            for outcome in OUTCOMES:
-                mean, low, high = estimate[seen[outcome]]
-                row[f"p_{outcome}"] = mean
-                row[f"p_{outcome}_low"] = low
-                row[f"p_{outcome}_high"] = high
-                row[f"family_p_{outcome}"] = family_estimate[seen[outcome]]
+            for result in RESULTS:
+                mean, low, high = estimate[seen[result]]
+                row[f"p_{result}"] = mean
+                row[f"p_{result}_low"] = low
+                row[f"p_{result}_high"] = high
+                row[f"family_p_{result}"] = family_estimate[seen[result]]
             rows.append(row)
     return pd.DataFrame(rows, columns=EVAL_COLUMNS)
 
@@ -232,7 +232,7 @@ def _has_result(result: tuple) -> bool:
     return method is not None and (method == DRAW) == (winner is None)
 
 
-def _outcome(result: tuple, athlete: str) -> str:
+def _result_for(result: tuple, athlete: str) -> str:
     winner, method = result
     if method == DRAW:
         return "draw"

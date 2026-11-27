@@ -183,7 +183,7 @@
       }
     },
     "result": {
-      "description": "The Match's final outcome. A draw has no winner; every other Method has one.",
+      "description": "The Match's final Result. A draw has no winner; every other Method has one.",
       "type": "object",
       "additionalProperties": false,
       "required": ["method"],

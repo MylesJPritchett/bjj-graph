@@ -33,7 +33,7 @@ def test_five_brief_re_entries_in_one_match_contribute_at_most_one(tmp_path):
     assert row["segments"] == 5
     assert row["raw_weight"] == pytest.approx(100 / 30)
     assert row["weight"] == 1
-    assert row["outcome"] == "win"
+    assert row["result"] == "win"
 
 
 def test_a_long_neutral_sink_contributes_at_most_one_per_match(tmp_path):
@@ -50,7 +50,7 @@ def test_a_long_neutral_sink_contributes_at_most_one_per_match(tmp_path):
     # Ten minutes in 50/50 saturates at one Segment's full weight.
     assert row["raw_weight"] == 1
     assert row["weight"] == 1
-    assert row["outcome"] == "draw"
+    assert row["result"] == "draw"
 
 
 def test_symmetric_positions_are_seen_from_the_initiator(tmp_path):
@@ -67,8 +67,8 @@ def test_symmetric_positions_are_seen_from_the_initiator(tmp_path):
 
     # B pulled A into 50/50 and lost. Standing at the start and after the
     # Reset has no Initiator, so it contributes nothing.
-    assert table[["position_id", "athlete", "outcome"]].to_dict("records") == [
-        {"position_id": "fifty_fifty", "athlete": B, "outcome": "loss"},
+    assert table[["position_id", "athlete", "result"]].to_dict("records") == [
+        {"position_id": "fifty_fifty", "athlete": B, "result": "loss"},
     ]
 
 
@@ -121,7 +121,7 @@ def test_a_brief_losing_mount_and_a_long_winning_mount_lean_win_for_the_mounter(
 
     row = eval_row(positional_eval(load_corpus(tmp_path)), "mount")
 
-    # Weighted outcomes: win 1, loss 5/30, draw 0.
+    # Weighted Results: win 1, loss 5/30, draw 0.
     assert row["matches"] == 2
     assert row["segments"] == 2
     assert row["weight"] == pytest.approx(1 + 5 / 30)
@@ -208,12 +208,12 @@ def test_intervals_contain_the_estimate_and_narrow_as_data_grows(tmp_path):
     large_eval = eval_row(positional_eval(large_corpus), "mount")
 
     for table in (positional_eval_by_perspective(large_corpus), positional_eval(load_corpus(tmp_path / "small"))):
-        for outcome in ("win", "loss", "draw"):
-            assert (table[f"p_{outcome}_low"] <= table[f"p_{outcome}"]).all()
-            assert (table[f"p_{outcome}"] <= table[f"p_{outcome}_high"]).all()
-    for outcome in ("win", "loss"):
-        small_width = small_eval[f"p_{outcome}_high"] - small_eval[f"p_{outcome}_low"]
-        large_width = large_eval[f"p_{outcome}_high"] - large_eval[f"p_{outcome}_low"]
+        for result in ("win", "loss", "draw"):
+            assert (table[f"p_{result}_low"] <= table[f"p_{result}"]).all()
+            assert (table[f"p_{result}"] <= table[f"p_{result}_high"]).all()
+    for result in ("win", "loss"):
+        small_width = small_eval[f"p_{result}_high"] - small_eval[f"p_{result}_low"]
+        large_width = large_eval[f"p_{result}_high"] - large_eval[f"p_{result}_low"]
         assert large_width < small_width
 
 
