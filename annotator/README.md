@@ -26,8 +26,9 @@ New Athletes are added from the tool (below), which writes them to `vocab/athlet
 2. Seek to the referee's start and press **Set from playhead** for the Match start; do the same for the Match end.
 3. Pick the two Athletes. If one isn't in the registry yet (e.g. a trials competitor with no BJJ Heroes page), press **Add Athlete**, enter a display name, check the suggested slug and add any external links, then **Save Athlete**. Slugs are unique: a taken slug is refused. The new Athlete fills the first empty picker and is selectable straight away.
 4. Play the Match and press a Position hotkey whenever a new Position is established (backdated to when it was first reached, per the Label Guide). The current Segment closes at the playhead and the new one runs until the next. The first Segment always starts at the Match start.
+   A prompt then asks how the new Segment was reached: press the Transition type's key, then `1` or `2` for the Initiator, then `1` or `2` for the Athlete in the Position's first Role (e.g. the guard player). Symmetric Positions skip the Role holder, a Reset skips the Initiator, and the first Segment skips the Transition. `Esc` cancels; nothing changes until the last answer is in.
 5. Fix mistakes on the timeline. Drag the handle between two Segments to retime that Transition. Click a Segment to jump the video to its start and open it in the Segment editor, where you can change its Position, Role holder and incoming Transition type and Initiator, or delete it (the previous or the next Segment absorbs its time). Undo with `z` and redo with `y`; undo covers every change to the Annotation.
-6. Save with **Save** or Ctrl+S. Work in progress saves fine; open violations are listed below the timeline.
+6. Save with **Save** or Ctrl+S. Work in progress saves fine; open violations are listed below the timeline. Click a Segment's violation to outline that Segment on the timeline and open it in the Segment editor.
 
 Playback keys: `k` or Space play/pause, `←` `→` 1s, `j` `l` 5s, `,` `.` one frame, `[` `]` speed. The full key legend, including every Position hotkey, is shown beside the player.
 

@@ -6,6 +6,8 @@
   --border: #d9d9d4;
   --error: #b42318;
   --info: #1a7f37;
+  --highlight: #d97706;
+  --highlight-bg: #fef3c7;
   font-family: system-ui, sans-serif;
   font-size: 14px;
   color: var(--text);
@@ -238,4 +240,44 @@ kbd {
 
 .add-athlete input[type="url"] {
   min-width: 18em;
+}
+
+.violations li.segment-violation {
+  cursor: pointer;
+}
+
+.violations li.selected {
+  background: var(--highlight-bg);
+}
+
+.segment-prompt {
+  border-color: var(--highlight);
+}
+
+.segment-prompt[hidden] {
+  display: none;
+}
+
+.segment-prompt h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.prompt-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prompt-options li {
+  cursor: pointer;
+}
+
+.prompt-hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
