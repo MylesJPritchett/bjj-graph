@@ -38,7 +38,10 @@ export function mountSavePanel(root: HTMLElement, store: Store) {
   });
 
   store.subscribe((state) => {
-    title.textContent = state.session ? `${state.session.annotation.id}${state.dirty ? " *" : ""}` : "No Annotation open";
+    const annotation = state.session?.annotation;
+    title.textContent = annotation
+      ? `${annotation.id}${annotation.relabel_of ? ` (re-label of ${annotation.relabel_of})` : ""}${state.dirty ? " *" : ""}`
+      : "No Annotation open";
     save.disabled = !state.session;
     notice.textContent = state.notice?.text ?? "";
     notice.className = `notice ${state.notice?.kind ?? ""}`;

@@ -6,6 +6,7 @@
 
 import type { SessionContext } from "../session/session";
 import { changeRate, seekBy, stepFrames, type VideoPlayer } from "./player/player";
+import type { SegmentPromptPanel } from "./panels/segment-prompt-panel";
 import type { Store } from "./store";
 
 export interface KeyBinding {
@@ -33,13 +34,42 @@ export function playbackBindings(player: VideoPlayer): KeyBinding[] {
   ];
 }
 
-/** One binding per Position hotkey: closes the current Segment and opens a new one at the playhead. */
-export function positionBindings(context: SessionContext, store: Store, player: VideoPlayer): KeyBinding[] {
+/**
+ * One binding per Position hotkey: opens the prompt for the Transition, Initiator
+ * and Role holder, which then closes the current Segment and opens a new one at the playhead.
+ */
+export function positionBindings(context: SessionContext, prompt: SegmentPromptPanel, player: VideoPlayer): KeyBinding[] {
   return context.vocabulary.positions.map((position) => ({
     key: position.hotkey,
     label: position.name,
-    run: () => store.dispatch({ type: "start_segment", time: playhead(player), position_id: position.id }),
+    run: () => prompt.open(playhead(player), position.id),
   }));
+}
+
+/** `p` opens the Score Event dialog at the playhead. */
+export function scoreBindings(player: VideoPlayer, openScoreDialog: (time: number) => void): KeyBinding[] {
+  return [
+    {
+      key: "p",
+      label: "Score Event at playhead",
+      run: () => {
+        player.pause();
+        openScoreDialog(playhead(player));
+      },
+    },
+  ];
+}
+
+/** The Transition type keys, listed in the legend; they only act inside the prompt. */
+export function transitionLegend(context: SessionContext): KeyBinding[] {
+  return context.vocabulary.transitions.map((t) => ({ key: t.hotkey, label: t.name, run: () => {} }));
+}
+
+export function historyBindings(store: Store): KeyBinding[] {
+  return [
+    { key: "z", label: "undo", run: () => store.dispatch({ type: "undo" }) },
+    { key: "y", label: "redo", run: () => store.dispatch({ type: "redo" }) },
+  ];
 }
 
 function isTyping(target: EventTarget | null): boolean {
@@ -59,6 +89,8 @@ export function bindKeys(bindings: KeyBinding[]): void {
   }
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+    // A modal dialog (e.g. the Score Event dialog) owns the keyboard while open.
+    if (document.querySelector("dialog[open]")) return;
     const binding = byKey.get(event.key);
     if (!binding) return;
     event.preventDefault();

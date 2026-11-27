@@ -6,6 +6,8 @@
   --border: #d9d9d4;
   --error: #b42318;
   --info: #1a7f37;
+  --highlight: #d97706;
+  --highlight-bg: #fef3c7;
   font-family: system-ui, sans-serif;
   font-size: 14px;
   color: var(--text);
@@ -149,6 +151,36 @@ kbd {
   color: #111;
 }
 
+.timeline-segment {
+  cursor: pointer;
+}
+
+.timeline-segment.selected {
+  outline: 3px solid var(--text);
+  outline-offset: -3px;
+}
+
+.timeline-boundary {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  margin-left: -4px;
+  cursor: ew-resize;
+  touch-action: none;
+  z-index: 1;
+}
+
+.timeline-boundary:hover,
+.timeline-boundary.dragging {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+#segment-editor h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
 .timeline-playhead {
   position: absolute;
   top: 0;
@@ -157,6 +189,70 @@ kbd {
   margin-left: -1px;
   background: #000;
   pointer-events: none;
+}
+
+.timeline-score-track {
+  position: relative;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-top: none;
+  background: var(--panel);
+}
+
+.score-marker {
+  position: absolute;
+  top: 2px;
+  height: 18px;
+  min-width: 18px;
+  transform: translateX(-50%);
+  padding: 0 3px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 16px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.score-marker.athlete-0 {
+  background: #1f5fbf;
+}
+
+.score-marker.athlete-1 {
+  background: #b5531c;
+}
+
+.score-marker.athlete-unknown {
+  background: var(--muted);
+}
+
+.score-marker.flagged {
+  outline: 2px solid var(--error);
+  outline-offset: 1px;
+}
+
+.score-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 280px;
+}
+
+.score-dialog h3,
+#metadata h3,
+#result h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.danger {
+  color: var(--error);
 }
 
 .timeline-empty {
@@ -208,4 +304,44 @@ kbd {
 
 .add-athlete input[type="url"] {
   min-width: 18em;
+}
+
+.violations li.segment-violation {
+  cursor: pointer;
+}
+
+.violations li.selected {
+  background: var(--highlight-bg);
+}
+
+.segment-prompt {
+  border-color: var(--highlight);
+}
+
+.segment-prompt[hidden] {
+  display: none;
+}
+
+.segment-prompt h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.prompt-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prompt-options li {
+  cursor: pointer;
+}
+
+.prompt-hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }

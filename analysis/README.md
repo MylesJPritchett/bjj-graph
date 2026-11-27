@@ -67,3 +67,14 @@ Or open it in VS Code and pick `.venv` as the kernel. While `annotations/` is em
 | `short_horizon_entries(corpus, horizon=30)` | One row per Segment: its outcome window and whether anything was scored in it. |
 | `lamas_2024_comparison(corpus)` | The Corpus next to the figures in the abstract of Lamas et al. 2024 (back to submission 0.45; submission attempts 1.03 per match), with the counts behind each value and a caveat. The full text is paywalled and not used. |
 | `transition_network(corpus)` / `plot_transition_network(graph, node_color=None)` | A networkx graph (nodes are Positions, edges carry earned Transition `count`) and a static plot of it. `node_color` takes a value per Position, for example a Positional Eval. |
+| `agreement_report(corpus)` | Self-consistency of blind re-labels; load with `include_relabels=True`. An `AgreementReport` holding five tables. `pairs` gives, per original/re-label pair, the share of Match time with the same Family, the same Position, and the same Position and Role holder, plus the edit-distance alignment of the Transition sequences. `positions` and `transitions` rank disagreement, most first. `confusions` sets the original Position against the re-label's, by time. `unpaired` lists re-labels whose original is missing. |
+
+## Self-consistency report
+
+Run the agreement report over every re-label pair in a Corpus with one command:
+
+```
+.venv/bin/bjj-agreement annotations/
+```
+
+The notebook's last section shows the same tables. Re-labels are made in the annotator with **Start re-label** and never enter the main statistics.
