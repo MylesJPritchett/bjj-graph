@@ -2,10 +2,13 @@
 
 import "./style.css";
 import { api } from "./ui/api";
-import { bindKeys, playbackBindings, positionBindings } from "./ui/keyboard";
+import { bindKeys, playbackBindings, positionBindings, scoreBindings } from "./ui/keyboard";
 import { mountKeysPanel } from "./ui/panels/keys-panel";
 import { mountMatchPanel } from "./ui/panels/match-panel";
+import { mountMetadataPanel } from "./ui/panels/metadata-panel";
+import { mountResultPanel } from "./ui/panels/result-panel";
 import { mountSavePanel } from "./ui/panels/save-panel";
+import { mountScoreDialog } from "./ui/panels/score-dialog";
 import { mountSourcePanel } from "./ui/panels/source-panel";
 import { mountViolationsPanel } from "./ui/panels/violations-panel";
 import { mountPlayer } from "./ui/player/player-view";
@@ -23,15 +26,20 @@ async function main() {
   mountSourcePanel(slot("source"), store);
   const player = mountPlayer(slot("player"), store);
   mountMatchPanel(slot("match"), store, player);
-  mountTimeline(slot("timeline"), store, player);
+  mountMetadataPanel(slot("metadata"), store);
+  mountResultPanel(slot("result"), store);
+  const scoreDialog = mountScoreDialog(document.body, store);
+  mountTimeline(slot("timeline"), store, player, scoreDialog);
   mountViolationsPanel(slot("violations"), store);
 
   const playback = playbackBindings(player);
   const positions = positionBindings(context, store, player);
-  bindKeys([...playback, ...positions]);
+  const scoring = scoreBindings(player, (time) => scoreDialog.add(time));
+  bindKeys([...playback, ...positions, ...scoring]);
   mountKeysPanel(slot("keys"), [
     { title: "Playback", bindings: playback },
     { title: "Positions", bindings: positions },
+    { title: "Scoring", bindings: scoring },
   ]);
 }
 

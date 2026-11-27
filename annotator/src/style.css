@@ -159,6 +159,70 @@ kbd {
   pointer-events: none;
 }
 
+.timeline-score-track {
+  position: relative;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-top: none;
+  background: var(--panel);
+}
+
+.score-marker {
+  position: absolute;
+  top: 2px;
+  height: 18px;
+  min-width: 18px;
+  transform: translateX(-50%);
+  padding: 0 3px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 16px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.score-marker.athlete-0 {
+  background: #1f5fbf;
+}
+
+.score-marker.athlete-1 {
+  background: #b5531c;
+}
+
+.score-marker.athlete-unknown {
+  background: var(--muted);
+}
+
+.score-marker.flagged {
+  outline: 2px solid var(--error);
+  outline-offset: 1px;
+}
+
+.score-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 280px;
+}
+
+.score-dialog h3,
+#metadata h3,
+#result h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.danger {
+  color: var(--error);
+}
+
 .timeline-empty {
   padding: 12px;
   color: var(--muted);

@@ -42,6 +42,20 @@ export function positionBindings(context: SessionContext, store: Store, player: 
   }));
 }
 
+/** `p` opens the Score Event dialog at the playhead. */
+export function scoreBindings(player: VideoPlayer, openScoreDialog: (time: number) => void): KeyBinding[] {
+  return [
+    {
+      key: "p",
+      label: "Score Event at playhead",
+      run: () => {
+        player.pause();
+        openScoreDialog(playhead(player));
+      },
+    },
+  ];
+}
+
 function isTyping(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLInputElement ||
@@ -59,6 +73,8 @@ export function bindKeys(bindings: KeyBinding[]): void {
   }
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+    // A modal dialog (e.g. the Score Event dialog) owns the keyboard while open.
+    if (document.querySelector("dialog[open]")) return;
     const binding = byKey.get(event.key);
     if (!binding) return;
     event.preventDefault();
