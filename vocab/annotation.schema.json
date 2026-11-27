@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/MylesJPritchett/bjj-graph/main/vocab/annotation.schema.json",
+  "title": "Annotation",
+  "description": "The labelled record of one Match. This schema checks structure only. Completeness and consistency rules (Segments tiling the Match, the 3s minimum, Role holder presence by symmetry, Initiator presence by Transition type, Result present, Position and Transition ids existing in the vocabulary, and so on) are validation rules applied on top, so a work-in-progress Annotation can still be saved and reloaded. All times are video time in seconds.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "vocabulary_version",
+    "annotator",
+    "source",
+    "metadata",
+    "athletes",
+    "segments",
+    "events"
+  ],
+  "properties": {
+    "id": {
+      "description": "Unique Annotation id. The file is stored as annotations/<id>.json.",
+      "$ref": "#/$defs/slug"
+    },
+    "schema_version": {
+      "description": "Version of this Annotation schema the document was written against.",
+      "const": 1
+    },
+    "vocabulary_version": {
+      "description": "The `version` of vocab/vocabulary.json the Annotation was labelled with.",
+      "$ref": "#/$defs/semver"
+    },
+    "annotator": {
+      "description": "Who made the Annotation.",
+      "type": "string",
+      "minLength": 1
+    },
+    "relabel_of": {
+      "description": "Set on a blind re-label: the id of the original Annotation of the same Match. Re-labels are excluded from the main Corpus by default.",
+      "$ref": "#/$defs/slug"
+    },
+    "source": { "$ref": "#/$defs/source" },
+    "match": { "$ref": "#/$defs/match" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "athletes": {
+      "description": "The two Athletes, as slugs from the Athlete registry. Fewer than two only while work is in progress.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/athlete_slug" },
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "segments": {
+      "description": "Time-ordered Segments that tile the Match from its start offset to its end offset. The first Segment has no incoming Transition.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/segment" }
+    },
+    "events": {
+      "description": "Time-ordered point Events. An open set of typed kinds: only `score` exists in schema version 1; further kinds (e.g. Attempts) are added as new branches of `event`.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/event" }
+    },
+    "result": { "$ref": "#/$defs/result" }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "athlete_slug": {
+      "description": "A key of the Athlete registry (vocab/athletes.json).",
+      "$ref": "#/$defs/slug"
+    },
+    "vocab_id": {
+      "description": "An id from vocab/vocabulary.json.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "video_time": {
+      "description": "Seconds from the start of the source video.",
+      "type": "number",
+      "minimum": 0
+    },
+    "source": {
+      "description": "Where the footage lives. No video is stored (ADR-0002); the Match is referenced by platform video id and/or URL.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "licence_status"],
+      "anyOf": [{ "required": ["video_id"] }, { "required": ["url"] }],
+      "properties": {
+        "platform": { "enum": ["youtube", "vimeo", "other"] },
+        "video_id": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "licence_status": {
+          "description": "official-channel: published publicly by the event or rights holder; permission-granted: the rights holder agreed to labelling; own-footage: we hold the rights; unknown: not yet checked.",
+          "enum": ["official-channel", "permission-granted", "own-footage", "unknown"]
+        },
+        "licence_note": { "type": "string" }
+      }
+    },
+    "match": {
+      "description": "Where the Match starts and ends within the source video.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_offset", "end_offset"],
+      "properties": {
+        "start_offset": { "$ref": "#/$defs/video_time" },
+        "end_offset": { "$ref": "#/$defs/video_time" }
+      }
+    },
+    "metadata": {
+      "description": "Match metadata used to stratify and filter a Corpus. All fields are optional so work in progress can be saved.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event": { "description": "e.g. \"ADCC 2022\".", "type": "string" },
+        "bracket": { "description": "The division, e.g. \"men -77kg\".", "type": "string" },
+        "round": { "description": "Bracket round, e.g. \"round of 16\", \"final\".", "type": "string" },
+        "ruleset": { "description": "e.g. \"adcc\", \"ibjjf\", \"submission-only\".", "$ref": "#/$defs/slug" },
+        "gi": { "type": "boolean" },
+        "weight_class": { "description": "e.g. \"-77kg\".", "type": "string" },
+        "level": { "description": "e.g. \"elite\", \"trials\", \"black belt\".", "type": "string" },
+        "camera": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "enum": ["broadcast", "fixed", "handheld", "other"] },
+            "angle": { "description": "e.g. \"side, elevated\".", "type": "string" }
+          }
+        },
+        "resolution": { "description": "e.g. \"1080p\".", "type": "string" }
+      }
+    },
+    "segment": {
+      "description": "A span of Match time spent in one Position.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end", "position_id"],
+      "properties": {
+        "start": { "$ref": "#/$defs/video_time" },
+        "end": { "$ref": "#/$defs/video_time" },
+        "position_id": { "$ref": "#/$defs/vocab_id" },
+        "first_role_holder": {
+          "description": "The Athlete holding the Position's first Role. Set for asymmetric Positions only.",
+          "$ref": "#/$defs/athlete_slug"
+        },
+        "entered_by": { "$ref": "#/$defs/transition" }
+      }
+    },
+    "transition": {
+      "description": "The Transition into a Segment from the one before it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transition_type"],
+      "properties": {
+        "transition_type": { "$ref": "#/$defs/vocab_id" },
+        "initiator": {
+          "description": "The Athlete who caused the Transition. Absent for Transition types that take no Initiator (Reset).",
+          "$ref": "#/$defs/athlete_slug"
+        }
+      }
+    },
+    "event": {
+      "oneOf": [{ "$ref": "#/$defs/score_event" }]
+    },
+    "score_event": {
+      "description": "A ruleset-specific scoring occurrence credited to an Athlete (ADR-0001).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "time", "athlete", "score_type"],
+      "properties": {
+        "kind": { "const": "score" },
+        "time": { "$ref": "#/$defs/video_time" },
+        "athlete": {
+          "description": "The Athlete credited (for a penalty: the Athlete penalised).",
+          "$ref": "#/$defs/athlete_slug"
+        },
+        "score_type": { "enum": ["points", "advantage", "penalty", "submission_finish", "submission_attempt"] },
+        "value": { "description": "Points awarded or deducted, where the ruleset gives a number.", "type": "number" },
+        "note": { "type": "string" }
+      }
+    },
+    "result": {
+      "description": "The Match's final outcome. A draw has no winner; every other Method has one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "properties": {
+        "winner": { "$ref": "#/$defs/athlete_slug" },
+        "method": { "enum": ["submission", "points", "advantages", "referee_decision", "disqualification", "draw"] }
+      },
+      "if": { "properties": { "method": { "const": "draw" } } },
+      "then": { "not": { "required": ["winner"] } },
+      "else": { "required": ["winner"] }
+    }
+  }
+}

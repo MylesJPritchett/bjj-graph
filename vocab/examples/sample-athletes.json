@@ -1,0 +1,14 @@
+{
+  "athletes": {
+    "alex-example": {
+      "name": "Alex Example",
+      "links": {
+        "bjjheroes": "https://www.bjjheroes.com/?p=0",
+        "digitsu": "https://digitsu.com/athletes/example"
+      }
+    },
+    "sam-example": {
+      "name": "Sam Example"
+    }
+  }
+}

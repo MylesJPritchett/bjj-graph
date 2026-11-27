@@ -1,0 +1,89 @@
+{
+  "id": "sample-0001",
+  "schema_version": 1,
+  "vocabulary_version": "0.1.0",
+  "annotator": "example-annotator",
+  "source": {
+    "platform": "youtube",
+    "video_id": "EXAMPLEVID0",
+    "licence_status": "unknown",
+    "licence_note": "Fictional Match for documentation and tests; the video id is a placeholder."
+  },
+  "match": { "start_offset": 100, "end_offset": 302 },
+  "metadata": {
+    "event": "Example Open 2026",
+    "bracket": "men -77kg",
+    "round": "final",
+    "ruleset": "adcc",
+    "gi": false,
+    "weight_class": "-77kg",
+    "level": "elite",
+    "camera": { "type": "broadcast", "angle": "side, elevated" },
+    "resolution": "1080p"
+  },
+  "athletes": ["alex-example", "sam-example"],
+  "segments": [
+    { "start": 100, "end": 118, "position_id": "standing" },
+    {
+      "start": 118,
+      "end": 140,
+      "position_id": "open_guard",
+      "first_role_holder": "sam-example",
+      "entered_by": { "transition_type": "guard_pull", "initiator": "sam-example" }
+    },
+    {
+      "start": 140,
+      "end": 165,
+      "position_id": "half_guard",
+      "first_role_holder": "sam-example",
+      "entered_by": { "transition_type": "advance", "initiator": "alex-example" }
+    },
+    {
+      "start": 165,
+      "end": 200,
+      "position_id": "side_control",
+      "first_role_holder": "alex-example",
+      "entered_by": { "transition_type": "pass", "initiator": "alex-example" }
+    },
+    {
+      "start": 200,
+      "end": 212,
+      "position_id": "scramble",
+      "entered_by": { "transition_type": "escape", "initiator": "sam-example" }
+    },
+    {
+      "start": 212,
+      "end": 230,
+      "position_id": "standing",
+      "entered_by": { "transition_type": "reset" }
+    },
+    {
+      "start": 230,
+      "end": 250,
+      "position_id": "turtle",
+      "first_role_holder": "alex-example",
+      "entered_by": { "transition_type": "takedown", "initiator": "alex-example" }
+    },
+    {
+      "start": 250,
+      "end": 290,
+      "position_id": "back_control",
+      "first_role_holder": "alex-example",
+      "entered_by": { "transition_type": "back_take", "initiator": "alex-example" }
+    },
+    {
+      "start": 290,
+      "end": 302,
+      "position_id": "rear_naked_choke",
+      "first_role_holder": "alex-example",
+      "entered_by": { "transition_type": "submission_entry", "initiator": "alex-example" }
+    }
+  ],
+  "events": [
+    { "kind": "score", "time": 168, "athlete": "alex-example", "score_type": "points", "value": 3 },
+    { "kind": "score", "time": 233, "athlete": "alex-example", "score_type": "points", "value": 2 },
+    { "kind": "score", "time": 253, "athlete": "alex-example", "score_type": "points", "value": 3 },
+    { "kind": "score", "time": 302, "athlete": "alex-example", "score_type": "submission_finish" }
+  ],
+  "result": { "winner": "alex-example", "method": "submission" }
+}

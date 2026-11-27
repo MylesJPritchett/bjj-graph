@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/MylesJPritchett/bjj-graph/main/vocab/athletes.schema.json",
+  "title": "Athlete registry",
+  "description": "Repo-local Athlete ids. Each key is an Athlete slug (lowercase kebab-case, e.g. \"gordon-ryan\"), used by Annotations to identify the Athlete consistently across Matches.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["athletes"],
+  "properties": {
+    "athletes": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": { "$ref": "#/$defs/athlete" }
+    }
+  },
+  "$defs": {
+    "athlete": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "description": "Display name.", "type": "string", "minLength": 1 },
+        "links": {
+          "description": "Optional external profiles, keyed by site, e.g. \"bjjheroes\", \"digitsu\", \"instagram\".",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+          "additionalProperties": { "type": "string", "format": "uri" }
+        }
+      }
+    }
+  }
+}
