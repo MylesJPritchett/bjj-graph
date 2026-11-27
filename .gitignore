@@ -2,4 +2,7 @@ node_modules/
 .venv/
 __pycache__/
 .claude/worktrees/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
 dist/
