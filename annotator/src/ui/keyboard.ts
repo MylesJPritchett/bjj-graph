@@ -5,6 +5,7 @@
 // undo) and p (Score Events).
 
 import type { SessionContext } from "../session/session";
+import { toHundredths } from "../session/time";
 import { changeRate, seekBy, stepFrames, type VideoPlayer } from "./player/player";
 import type { SegmentPromptPanel } from "./panels/segment-prompt-panel";
 import type { Store } from "./store";
@@ -17,7 +18,7 @@ export interface KeyBinding {
 }
 
 /** Playhead time as recorded in Annotations: video seconds to 0.01s. */
-export const playhead = (player: VideoPlayer) => Math.round(player.currentTime() * 100) / 100;
+export const playhead = (player: VideoPlayer) => toHundredths(player.currentTime());
 
 export function playbackBindings(player: VideoPlayer): KeyBinding[] {
   return [

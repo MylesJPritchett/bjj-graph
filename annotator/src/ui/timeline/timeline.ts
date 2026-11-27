@@ -5,15 +5,13 @@
 // glyph seeks to it and opens it for editing.
 
 import type { Session } from "../../session/session";
+import { toHundredths } from "../../session/time";
 import { formatTime, h } from "../dom";
 import { describeScoreEvent, type ScoreDialog } from "../panels/score-dialog";
 import type { VideoPlayer } from "../player/player";
 import type { Store } from "../store";
 import { familyColour } from "./family-colours";
 import type { SegmentSelection } from "./selection";
-
-/** Boundary times are recorded to 0.01s, like the playhead. */
-const toHundredths = (t: number) => Math.round(t * 100) / 100;
 
 export function mountTimeline(
   root: HTMLElement,
