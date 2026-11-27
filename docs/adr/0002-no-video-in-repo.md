@@ -1,0 +1,3 @@
+# No video is stored; Annotations reference the source by URL and offsets
+
+Annotations identify footage by its source URL or video ID plus time offsets, and the annotation tool plays the video through the platform's embed player. No video files are downloaded or committed. Tournament footage is generally copyrighted and platform terms restrict downloading, whereas sharing derived labels carries much less risk. This keeps the repo publishable, at the cost of coarser seeking and a dependency on the source staying online. Local file paths may be supported later for footage we own, such as our own gym rolls.
