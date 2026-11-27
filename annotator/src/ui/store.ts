@@ -1,8 +1,16 @@
 // UI state: the current session plus transient messages. All Annotation
 // changes go through `dispatch`, which runs a session command.
 
-import { apply, violationsOf, type Command, type Session, type SessionContext, type Violation } from "../session/session";
-import type { ViolationTarget } from "../session/validation";
+import {
+  apply,
+  violationsOf,
+  withRegistry,
+  type Command,
+  type Session,
+  type SessionContext,
+  type Violation,
+} from "../session/session";
+import type { AthleteRegistry } from "../session/types";
 
 export interface Notice {
   kind: "error" | "info";
@@ -16,8 +24,6 @@ export interface AppState {
   /** True when the session has changes not yet saved. */
   dirty: boolean;
   notice?: Notice;
-  /** What the annotator last picked in the violations panel; cleared by any change. */
-  highlighted?: ViolationTarget;
 }
 
 type Listener = (state: AppState) => void;
@@ -48,17 +54,20 @@ export class Store {
       this.notify({ kind: "error", text: outcome.rejection });
       return false;
     }
-    this.set({ session: outcome.session, violations: violationsOf(outcome.session), dirty: true, notice: undefined, highlighted: undefined });
+    this.set({ session: outcome.session, violations: violationsOf(outcome.session), dirty: true, notice: undefined });
     return true;
   }
 
   /** Replaces the whole session, e.g. after creating or opening an Annotation. */
   open(session: Session, dirty = false) {
-    this.set({ session, violations: violationsOf(session), dirty, notice: undefined, highlighted: undefined });
+    this.set({ session, violations: violationsOf(session), dirty, notice: undefined });
   }
 
-  highlight(target: ViolationTarget | undefined) {
-    this.set({ highlighted: target });
+  /** Swaps in the registry after an Athlete was added, so they can be picked straight away. */
+  updateRegistry(registry: AthleteRegistry) {
+    const context = { ...this.state.context, registry };
+    const session = this.state.session && withRegistry(this.state.session, registry);
+    this.set({ context, session, violations: session ? violationsOf(session) : [] });
   }
 
   markSaved() {

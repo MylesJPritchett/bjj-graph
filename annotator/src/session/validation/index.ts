@@ -3,9 +3,10 @@
 
 import type { SessionContext } from "../state";
 import type { Annotation } from "../types";
+import { minimumDuration } from "./duration";
 import { knownAthletes, knownPosition, twoAthletes } from "./known-ids";
 import { initiator, roleHolder, transitionRecorded } from "./segment-labels";
-import { adjacentSegmentsDiffer, matchBoundsSet, minimumDuration, segmentsTileMatch } from "./timeline";
+import { adjacentSegmentsDiffer, matchBoundsSet, segmentsTileMatch } from "./timeline";
 import type { Rule, Violation } from "./violation";
 
 export type { Rule, Violation, ViolationTarget } from "./violation";
@@ -17,12 +18,12 @@ export const rules: Rule[] = [
   knownAthletes,
   // Segments
   segmentsTileMatch,
-  minimumDuration,
   adjacentSegmentsDiffer,
   knownPosition,
   roleHolder,
   transitionRecorded,
   initiator,
+  minimumDuration,
 ];
 
 export function validate(annotation: Annotation, context: SessionContext): Violation[] {

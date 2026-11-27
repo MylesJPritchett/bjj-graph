@@ -7,6 +7,7 @@
 import type { SessionContext } from "../session/session";
 import { changeRate, seekBy, stepFrames, type VideoPlayer } from "./player/player";
 import type { SegmentPromptPanel } from "./panels/segment-prompt-panel";
+import type { Store } from "./store";
 
 export interface KeyBinding {
   key: string;
@@ -48,6 +49,13 @@ export function positionBindings(context: SessionContext, prompt: SegmentPromptP
 /** The Transition type keys, listed in the legend; they only act inside the prompt. */
 export function transitionLegend(context: SessionContext): KeyBinding[] {
   return context.vocabulary.transitions.map((t) => ({ key: t.hotkey, label: t.name, run: () => {} }));
+}
+
+export function historyBindings(store: Store): KeyBinding[] {
+  return [
+    { key: "z", label: "undo", run: () => store.dispatch({ type: "undo" }) },
+    { key: "y", label: "redo", run: () => store.dispatch({ type: "redo" }) },
+  ];
 }
 
 function isTyping(target: EventTarget | null): boolean {

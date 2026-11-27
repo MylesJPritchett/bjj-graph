@@ -2,27 +2,6 @@ import type { Rule, Violation } from "./violation";
 
 const segmentAt = (index: number) => ({ kind: "segment", index }) as const;
 
-/** A Position must be held at least this long to count as a Segment (Label Guide: the 3s establishment rule). */
-export const MINIMUM_SEGMENT_SECONDS = 3;
-
-/**
- * Every Segment lasts at least 3s. A short final submission Segment is still
- * flagged: the Label Guide asks for a note that it was deliberate.
- */
-export const minimumDuration: Rule = ({ segments }) =>
-  segments.flatMap((segment, index) => {
-    const length = segment.end - segment.start;
-    // Segments that end before they start are reported by segments-tile-match.
-    if (length <= 0 || length >= MINIMUM_SEGMENT_SECONDS) return [];
-    return [
-      {
-        rule: "minimum-duration",
-        message: `Held ${Math.round(length * 100) / 100}s, under the ${MINIMUM_SEGMENT_SECONDS}s minimum: fold it into a neighbour or Scramble.`,
-        target: segmentAt(index),
-      },
-    ];
-  });
-
 /**
  * Adjacent Segments differ in Position or Role holder; otherwise nothing happened
  * and the earlier Segment simply continues. The same Position either side of a

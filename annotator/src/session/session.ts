@@ -1,10 +1,10 @@
 // The annotation session module: pure TypeScript, no DOM.
 // Commands go in (`apply`); the Annotation and its violations come out.
 
-import { handlers, type Command } from "./commands";
-import { CommandRejected, type Session, type SessionContext } from "./state";
+import { handlers, isHistoryCommand, recordChange, type Command } from "./commands";
+import { CommandRejected, NO_HISTORY, type Session, type SessionContext } from "./state";
 import { canonicalOrder } from "./serialize";
-import type { Annotation, Source } from "./types";
+import type { Annotation, AthleteRegistry, Source } from "./types";
 import { validate, type Violation } from "./validation";
 
 export type { Session, SessionContext } from "./state";
@@ -32,13 +32,18 @@ export function newSession(context: SessionContext, init: NewAnnotation): Sessio
     segments: [],
     events: [],
   };
-  return { context, annotation, bounds: {} };
+  return { context, annotation, bounds: {}, history: NO_HISTORY };
 }
 
 /** Reopens a saved Annotation. */
 export function openSession(context: SessionContext, annotation: Annotation): Session {
   const bounds = annotation.match ? { start: annotation.match.start_offset, end: annotation.match.end_offset } : {};
-  return { context, annotation, bounds };
+  return { context, annotation, bounds, history: NO_HISTORY };
+}
+
+/** The same session against an updated Athlete registry, e.g. after adding an Athlete mid-Match. */
+export function withRegistry(session: Session, registry: AthleteRegistry): Session {
+  return { ...session, context: { ...session.context, registry } };
 }
 
 export interface Outcome {
@@ -50,8 +55,9 @@ export interface Outcome {
 export function apply(session: Session, command: Command): Outcome {
   const handler = handlers[command.type] as (s: Session, c: Command) => Session;
   try {
-    const next = handler(session, command);
-    return { session: { ...next, annotation: canonicalOrder(next.annotation) } };
+    const handled = handler(session, command);
+    const next = { ...handled, annotation: canonicalOrder(handled.annotation) };
+    return { session: isHistoryCommand(command) ? next : recordChange(session, next) };
   } catch (error) {
     if (error instanceof CommandRejected) return { session, rejection: error.message };
     throw error;
