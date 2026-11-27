@@ -1,22 +1,22 @@
 // The Result form: winner (or draw) and its Method.
 
-import type { Method } from "../../session/types";
+import { METHODS, type Method } from "../../session/types";
 import { h } from "../dom";
 import type { Store } from "../store";
 
-const METHODS: { id: Method; label: string }[] = [
-  { id: "submission", label: "Submission" },
-  { id: "points", label: "Points" },
-  { id: "advantages", label: "Advantages" },
-  { id: "referee_decision", label: "Referee decision" },
-  { id: "disqualification", label: "Disqualification" },
-  { id: "draw", label: "Draw" },
-];
+const METHOD_LABELS: Record<Method, string> = {
+  submission: "Submission",
+  points: "Points",
+  advantages: "Advantages",
+  referee_decision: "Referee decision",
+  disqualification: "Disqualification",
+  draw: "Draw",
+};
 
 export function mountResultPanel(root: HTMLElement, store: Store) {
   const winner = h("select");
   const method = h("select");
-  method.append(h("option", { value: "" }, "Method..."), ...METHODS.map((m) => h("option", { value: m.id }, m.label)));
+  method.append(h("option", { value: "" }, "Method..."), ...METHODS.map((m) => h("option", { value: m }, METHOD_LABELS[m])));
   const clear = h("button", { type: "button" }, "Clear");
   const hint = h("span", { class: "hint" });
 

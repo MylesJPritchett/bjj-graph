@@ -2,17 +2,17 @@
 // or deletes an existing one (opened from its Score Event glyph on the timeline).
 
 import type { ScoreEventFields } from "../../session/commands/events";
-import type { ScoreEvent } from "../../session/types";
+import { SCORE_TYPES, type ScoreEvent, type ScoreType } from "../../session/types";
 import { formatTime, h } from "../dom";
 import type { Store } from "../store";
 
-export const SCORE_TYPES: { id: ScoreEvent["score_type"]; label: string }[] = [
-  { id: "points", label: "Points" },
-  { id: "advantage", label: "Advantage" },
-  { id: "penalty", label: "Penalty" },
-  { id: "submission_finish", label: "Submission finish" },
-  { id: "submission_attempt", label: "Scored submission attempt" },
-];
+const SCORE_TYPE_LABELS: Record<ScoreType, string> = {
+  points: "Points",
+  advantage: "Advantage",
+  penalty: "Penalty",
+  submission_finish: "Submission finish",
+  submission_attempt: "Scored submission attempt",
+};
 
 export interface ScoreDialog {
   /** Opens the dialog for a new Score Event at `time`. */
@@ -28,7 +28,7 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
   const scoreType = h(
     "select",
     {},
-    ...SCORE_TYPES.map((t, i) => h("option", { value: t.id }, `${i + 1}. ${t.label}`)),
+    ...SCORE_TYPES.map((t, i) => h("option", { value: t }, `${i + 1}. ${SCORE_TYPE_LABELS[t]}`)),
   );
   const value = h("input", { type: "number", step: "1", placeholder: "e.g. 2", size: 6 });
   const note = h("input", { type: "text", size: 30 });
@@ -81,7 +81,7 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
     const required = {
       time: Number(time.value),
       athlete: athlete.value,
-      score_type: scoreType.value as ScoreEvent["score_type"],
+      score_type: scoreType.value as ScoreType,
     };
     const typedValue = value.value.trim() === "" ? undefined : Number(value.value);
     const typedNote = note.value.trim() || undefined;
@@ -107,7 +107,7 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
       save();
     } else if (event.target === scoreType && /^[1-5]$/.test(event.key)) {
       event.preventDefault();
-      scoreType.value = SCORE_TYPES[Number(event.key) - 1]!.id;
+      scoreType.value = SCORE_TYPES[Number(event.key) - 1]!;
     }
   });
   cancel.addEventListener("click", () => dialog.close());
@@ -126,6 +126,6 @@ export function mountScoreDialog(root: HTMLElement, store: Store): ScoreDialog {
 
 /** One-line description of a Score Event, for Score Event glyph tooltips. */
 export function describeScoreEvent(event: ScoreEvent, name: string): string {
-  const type = SCORE_TYPES.find((t) => t.id === event.score_type)?.label ?? event.score_type;
+  const type = SCORE_TYPE_LABELS[event.score_type] ?? event.score_type;
   return `${formatTime(event.time)}  ${name}: ${type}${event.value === undefined ? "" : ` ${event.value}`}${event.note ? ` (${event.note})` : ""}`;
 }

@@ -91,11 +91,15 @@ export interface Segment {
   entered_by?: Transition;
 }
 
+/** Every Score Event type, in the order the Score Event dialog lists them. */
+export const SCORE_TYPES = ["points", "advantage", "penalty", "submission_finish", "submission_attempt"] as const;
+export type ScoreType = (typeof SCORE_TYPES)[number];
+
 export interface ScoreEvent {
   kind: "score";
   time: VideoTime;
   athlete: AthleteSlug;
-  score_type: "points" | "advantage" | "penalty" | "submission_finish" | "submission_attempt";
+  score_type: ScoreType;
   value?: number;
   note?: string;
 }
@@ -103,7 +107,9 @@ export interface ScoreEvent {
 /** Open set of typed kinds; only `score` exists in schema version 1. */
 export type MatchEvent = ScoreEvent;
 
-export type Method = "submission" | "points" | "advantages" | "referee_decision" | "disqualification" | "draw";
+/** Every Method, in the order the Result form lists them. */
+export const METHODS = ["submission", "points", "advantages", "referee_decision", "disqualification", "draw"] as const;
+export type Method = (typeof METHODS)[number];
 
 export interface Result {
   winner?: AthleteSlug;
