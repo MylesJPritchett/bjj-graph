@@ -1,6 +1,7 @@
 from corpus_builder import A, B, AnnotationBuilder, write_corpus, write_raw
 
 from bjj_analysis import load_corpus
+from bjj_analysis.vocabulary import DEFAULT_VOCAB_DIR
 
 
 def simple_match(annotation_id: str, **metadata) -> AnnotationBuilder:
@@ -19,6 +20,14 @@ def test_loads_every_annotation_in_the_corpus_directory(tmp_path):
 
     assert sorted(corpus.matches["annotation_id"]) == ["m1", "m2"]
     assert len(corpus.segments) == 4
+    assert corpus.rejected.empty
+
+
+def test_the_shared_sample_annotation_loads_cleanly():
+    corpus = load_corpus(DEFAULT_VOCAB_DIR / "examples", pattern="sample-annotation.json")
+
+    assert list(corpus.matches["annotation_id"]) == ["sample-0001"]
+    assert len(corpus.segments) == 9
     assert corpus.rejected.empty
 
 
